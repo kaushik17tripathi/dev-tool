@@ -33,8 +33,51 @@ export default function ToolLayout({ tool, children, shareValue }: ToolLayoutPro
 
     const starred = isFavorite(tool.slug);
 
+    const schemaOrg = {
+        "@context": "https://schema.org",
+        "@graph": [
+            {
+                "@type": "SoftwareApplication",
+                "name": tool.name,
+                "description": tool.description,
+                "applicationCategory": "DeveloperApplication",
+                "operatingSystem": "Any",
+                "offers": {
+                    "@type": "Offer",
+                    "price": "0",
+                    "priceCurrency": "USD"
+                }
+            },
+            {
+                "@type": "FAQPage",
+                "mainEntity": [
+                    {
+                        "@type": "Question",
+                        "name": "Is my data safe?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Yes! All processing happens locally in your browser. We never send your data to any server. Your privacy is our top priority."
+                        }
+                    },
+                    {
+                        "@type": "Question",
+                        "name": "Is this tool free?",
+                        "acceptedAnswer": {
+                            "@type": "Answer",
+                            "text": "Absolutely. DevToolbox is and will always be free to use for developers."
+                        }
+                    }
+                ]
+            }
+        ]
+    };
+
     return (
         <div className="space-y-12">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrg) }}
+            />
             {/* Breadcrumbs */}
             <nav className="flex items-center gap-2 text-sm text-text-muted">
                 <Link href="/" className="hover:text-accent transition-colors">Home</Link>
