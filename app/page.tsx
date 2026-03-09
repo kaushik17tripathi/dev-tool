@@ -35,7 +35,7 @@ export default function Home() {
         return tools.filter(tool => favorites.includes(tool.slug));
     }, [favorites]);
 
-    if (!mounted) return null;
+    const showFavorites = mounted && favoriteTools.length > 0 && !searchQuery && activeCategory === 'All';
 
     return (
         <div className="space-y-16 py-8">
@@ -95,7 +95,7 @@ export default function Home() {
             </section>
 
             {/* Favorites Section */}
-            {favoriteTools.length > 0 && !searchQuery && activeCategory === 'All' && (
+            {showFavorites && (
                 <section className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
                     <div className="flex items-center gap-2 border-b border-border pb-4">
                         <Star className="w-5 h-5 text-yellow-500 fill-current" />
