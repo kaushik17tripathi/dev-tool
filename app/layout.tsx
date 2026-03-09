@@ -46,6 +46,20 @@ export const metadata: Metadata = {
         images: ["/og-image.png"],
         creator: "@kaushik17",
     },
+    alternates: {
+        canonical: "/",
+    },
+    robots: {
+        index: true,
+        follow: true,
+        googleBot: {
+            index: true,
+            follow: true,
+            'max-video-preview': -1,
+            'max-image-preview': 'large',
+            'max-snippet': -1,
+        },
+    },
 };
 
 export default function RootLayout({
