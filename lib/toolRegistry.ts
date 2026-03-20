@@ -1,4 +1,4 @@
-export type Category = 'JSON' | 'Encoding' | 'Developer' | 'DateTime' | 'Misc';
+export type Category = 'JSON' | 'Encoding' | 'Developer' | 'DateTime' | 'Misc' | 'Network';
 
 export interface Tool {
     slug: string;
@@ -249,6 +249,46 @@ export const tools: Tool[] = [
         category: 'Developer',
         keywords: ['markdown preview', 'md editor', 'live markdown'],
         icon: 'Eye',
+    },
+    {
+        slug: 'curl-comparator',
+        name: 'cURL Comparator',
+        description: 'Compare two cURL commands side-by-side to find differences in headers, body, or URL.',
+        category: 'Network',
+        keywords: ['curl comparator', 'diff curl', 'compare curl'],
+        icon: 'GitCompare',
+    },
+    {
+        slug: 'http-headers-analyzer',
+        name: 'HTTP Headers Analyzer',
+        description: 'Analyze raw HTTP headers to understand their purpose and security implications.',
+        category: 'Network',
+        keywords: ['http headers', 'header analyzer', 'security headers', 'hsts', 'csp'],
+        icon: 'ShieldCheck',
+    },
+    {
+        slug: 'json-schema-validator',
+        name: 'JSON Schema Validator',
+        description: 'Validate a JSON document against a JSON Schema to check its structure.',
+        category: 'JSON',
+        keywords: ['json schema', 'json validator', 'schema validation', 'draft-07'],
+        icon: 'ClipboardCheck',
+    },
+    {
+        slug: 'json-minify-stringify',
+        name: 'JSON Minify & Stringify',
+        description: 'Minify JSON and convert it to an escaped string literal for use in code.',
+        category: 'JSON',
+        keywords: ['json minify', 'json stringify', 'json compress', 'json escape'],
+        icon: 'Minimize2',
+    },
+    {
+        slug: 'fake-json-generator',
+        name: 'Fake JSON Generator',
+        description: 'Generate realistic fake JSON data from a custom schema for testing and prototyping.',
+        category: 'JSON',
+        keywords: ['fake json', 'json mock', 'mock data', 'test data generator'],
+        icon: 'Wand2',
     },
 ];
 
