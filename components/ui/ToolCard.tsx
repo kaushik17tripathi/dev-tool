@@ -21,7 +21,7 @@ export default function ToolCard({ tool, isFavorite, onToggleFavorite }: ToolCar
                     e.stopPropagation();
                     onToggleFavorite?.(tool.slug);
                 }}
-                className={`absolute top-4 right-4 p-2 rounded-xl transition-all z-20 
+                className={`absolute top-4 left-4 p-2 rounded-xl transition-all z-20 
                     ${isFavorite
                         ? 'text-yellow-500 bg-yellow-500/10 opacity-100 scale-110'
                         : 'text-text-muted hover:text-yellow-500 hover:bg-yellow-500/10 opacity-0 group-hover:opacity-100'
