@@ -21,13 +21,6 @@ export default function Navbar() {
 
                 <div className="flex items-center gap-4">
                     <ThemeToggle />
-                    <Link
-                        href="https://github.com/kaushik-tripathi/devtoolbox"
-                        target="_blank"
-                        className="hidden sm:flex btn-secondary py-1.5 px-4 text-xs items-center gap-2"
-                    >
-                        <span>GitHub</span>
-                    </Link>
                 </div>
             </div>
         </nav>

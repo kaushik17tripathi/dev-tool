@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 
 export const metadata = {
     title: "Terms of Service – DevWallah",
@@ -69,7 +70,7 @@ export default function TermsPage() {
                 <div className="space-y-4 pt-8 border-t border-border">
                     <h2 className="text-xl font-bold">Contact</h2>
                     <p className="text-text-muted">
-                        Questions about these terms? Reach out via our GitHub repository.
+                        Questions about these terms? Reach out via our <Link href="/contact" className="text-accent hover:underline">contact page</Link>.
                     </p>
                 </div>
             </section>

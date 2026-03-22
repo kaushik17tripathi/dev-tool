@@ -40,12 +40,12 @@ export default function Base64Page() {
 
     return (
         <ToolLayout tool={tool} shareValue={input}>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
-                {/* Input Panel */}
-                <div className="space-y-4 flex flex-col">
-                    <div className="flex items-center justify-between">
-                        <label className="label">{mode === "encode" ? "Text to Encode" : "Base64 to Decode"}</label>
-                        <div className="flex items-center gap-2">
+            <div className="relative h-[500px]">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
+                    {/* Input Panel */}
+                    <div className="space-y-4 flex flex-col h-full">
+                        <div className="flex items-center justify-between flex-shrink-0">
+                            <label className="label uppercase tracking-widest mb-0">{mode === "encode" ? "Text to Encode" : "Base64 to Decode"}</label>
                             <button
                                 onClick={handleClear}
                                 className="text-text-muted hover:text-error transition-colors p-1"
@@ -54,55 +54,57 @@ export default function Base64Page() {
                                 <Trash2 className="w-4 h-4" />
                             </button>
                         </div>
+                        <textarea
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            className={`input-field flex-grow resize-none font-mono text-sm p-4 overflow-y-auto ${error ? 'border-error/50' : ''}`}
+                            placeholder={mode === "encode" ? "Enter plain text here..." : "Enter Base64 string here..."}
+                            spellCheck="false"
+                        />
                     </div>
-                    <textarea
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        className={`input-field flex-grow min-h-[300px] resize-none ${error ? 'border-error/50' : ''}`}
-                        placeholder={mode === "encode" ? "Enter plain text here..." : "Enter Base64 string here..."}
-                    />
+
+                    {/* Output Panel */}
+                    <div className="space-y-4 flex flex-col h-full">
+                        <div className="flex items-center justify-between flex-shrink-0">
+                            <label className="label uppercase tracking-widest mb-0">{mode === "encode" ? "Base64 Encoded" : "Decoded Text"}</label>
+                            <button
+                                onClick={() => output && handleCopy(output)}
+                                disabled={!output}
+                                className={`btn-secondary py-1 text-xs px-3 flex items-center gap-2 ${showCopyFeedback ? 'text-success border-success/50' : ''}`}
+                            >
+                                {showCopyFeedback ? <Check className="w-3.5 h-3.5" /> : <Clipboard className="w-3.5 h-3.5" />}
+                                <span>{showCopyFeedback ? 'Copied' : 'Copy Result'}</span>
+                            </button>
+                        </div>
+                        <textarea
+                            value={error ? `Error: ${error}` : (output ?? "")}
+                            readOnly
+                            className={`input-field flex-grow resize-none font-mono text-sm p-4 overflow-y-auto bg-background-input/50 ${error ? 'text-error border-error/30' : ''}`}
+                            placeholder="Output will appear here..."
+                        />
+                    </div>
                 </div>
 
-                {/* Controls (Absolute on large, relative on small) */}
-                <div className="hidden lg:flex flex-col justify-center items-center -mx-4 z-10">
+                {/* Mode Toggle - Desktop (Floating Center) */}
+                <div className="hidden lg:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
                     <button
                         onClick={toggleMode}
-                        className="bg-accent p-3 rounded-full hover:scale-110 active:scale-95 transition-all shadow-lg text-white"
-                        title="Switch Mode"
+                        className="bg-accent p-4 rounded-full hover:scale-110 active:scale-95 transition-all shadow-xl shadow-accent/20 text-white group"
+                        title={`Switch to ${mode === "encode" ? "Decode" : "Encode"}`}
                     >
-                        <ArrowDownUp className="w-6 h-6" />
+                        <ArrowDownUp className="w-6 h-6 group-hover:rotate-180 transition-transform duration-500" />
                     </button>
                 </div>
 
-                <div className="lg:hidden flex justify-center py-2">
+                {/* Mode Toggle - Mobile (Fixed bottom or between) */}
+                <div className="lg:hidden flex justify-center mt-4">
                     <button
                         onClick={toggleMode}
-                        className="btn-secondary py-2 px-6 flex items-center gap-2"
+                        className="btn-primary py-2 px-6 flex items-center gap-3 rounded-full shadow-lg"
                     >
                         <ArrowDownUp className="w-4 h-4" />
-                        <span>Switch to {mode === "encode" ? "Decoding" : "Encoding"}</span>
+                        <span className="font-bold">Switch to {mode === "encode" ? "Decoding" : "Encoding"}</span>
                     </button>
-                </div>
-
-                {/* Output Panel */}
-                <div className="space-y-4 flex flex-col">
-                    <div className="flex items-center justify-between">
-                        <label className="label">{mode === "encode" ? "Base64 Encoded" : "Decoded Text"}</label>
-                        <button
-                            onClick={() => output && handleCopy(output)}
-                            disabled={!output}
-                            className={`btn-secondary py-1 text-xs flex items-center gap-2 ${showCopyFeedback ? 'text-success border-success/50' : ''}`}
-                        >
-                            {showCopyFeedback ? <Check className="w-3.5 h-3.5" /> : <Clipboard className="w-3.5 h-3.5" />}
-                            <span>{showCopyFeedback ? 'Copied' : 'Copy Result'}</span>
-                        </button>
-                    </div>
-
-                    <div className="relative flex-grow">
-                        <div className={`absolute inset-0 bg-background-input border border-border rounded-lg p-3 font-mono text-sm overflow-auto break-all ${error ? 'text-error bg-error/5' : ''}`}>
-                            {error ? `Invalid input: ${error}` : (output || <span className="text-text-muted italic">Waiting for input...</span>)}
-                        </div>
-                    </div>
                 </div>
             </div>
         </ToolLayout>

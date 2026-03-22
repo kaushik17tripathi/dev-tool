@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 
 export const metadata = {
     title: "Privacy Policy – DevWallah",
@@ -56,8 +57,8 @@ export default function PrivacyPage() {
                 <div className="space-y-4 pt-8 border-t border-border">
                     <h2 className="text-xl font-bold">Contact</h2>
                     <p className="text-text-muted">
-                        If you have any questions about this policy, feel free to reach out
-                        via our GitHub repository.
+                        If you have any questions about this policy, please reach out
+                        via our <Link href="/contact" className="text-accent hover:underline">contact page</Link>.
                     </p>
                 </div>
             </section>

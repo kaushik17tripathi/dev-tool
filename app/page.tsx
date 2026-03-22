@@ -50,24 +50,7 @@ export default function Home() {
                     No tracking, no data collection, no hassle.
                 </p>
 
-                <div className="relative max-w-lg mx-auto pt-4 group">
-                    <Search className={`absolute left-4 top-[48px] -translate-y-1/2 w-5 h-5 transition-colors ${searchQuery ? 'text-accent' : 'text-text-muted'}`} />
-                    <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search 30+ tools..."
-                        className="w-full bg-background-input border border-border rounded-2xl py-4 pl-12 pr-12 focus:ring-2 focus:ring-accent focus:border-accent transition-all outline-none text-lg shadow-xl"
-                    />
-                    {searchQuery && (
-                        <button
-                            onClick={() => setSearchQuery("")}
-                            className="absolute right-4 top-[34px] -translate-y-1/2 text-text-muted hover:text-text-primary p-1"
-                        >
-                            <X className="w-4 h-4" />
-                        </button>
-                    )}
-                </div>
+
             </section>
 
             {/* Features Grid */}
@@ -83,16 +66,35 @@ export default function Home() {
                     <div className="bg-accent/10 p-3 rounded-full">
                         <Zap className="w-6 h-6 text-accent" />
                     </div>
-                    <h3 className="font-bold text-lg">Blazing Fast</h3>
-                    <p className="text-text-muted text-sm">Built with Next.js 14 for instant loading and smooth transitions.</p>
+                    <h3 className="font-bold text-lg">Instant Execution</h3>
+                    <p className="text-text-muted text-sm">No server lag. All tools process your data instantly in real-time as you type.</p>
                 </div>
                 <div className="flex flex-col items-center text-center p-6 space-y-3">
                     <div className="bg-accent/10 p-3 rounded-full">
-                        <Terminal className="w-6 h-6 text-accent" />
+                        <Star className="w-6 h-6 text-accent" />
                     </div>
-                    <h3 className="font-bold text-lg">Open Source</h3>
-                    <p className="text-text-muted text-sm">Check our code on GitHub. Community-driven and always free.</p>
+                    <h3 className="font-bold text-lg">Free Forever</h3>
+                    <p className="text-text-muted text-sm">30+ professional tools available for free. No account, no subscription, no limits.</p>
                 </div>
+            </section>
+
+            <section className="relative max-w-lg mx-auto pt-4 group">
+                <Search className={`absolute left-4 top-[48px] -translate-y-1/2 w-5 h-5 transition-colors ${searchQuery ? 'text-accent' : 'text-text-muted'}`} />
+                <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search 30+ tools..."
+                    className="w-full bg-background-input border border-border rounded-2xl py-4 pl-12 pr-12 focus:ring-2 focus:ring-accent focus:border-accent transition-all outline-none text-lg shadow-xl"
+                />
+                {searchQuery && (
+                    <button
+                        onClick={() => setSearchQuery("")}
+                        className="absolute right-4 top-[34px] -translate-y-1/2 text-text-muted hover:text-text-primary p-1"
+                    >
+                        <X className="w-4 h-4" />
+                    </button>
+                )}
             </section>
 
             {/* Favorites Section */}

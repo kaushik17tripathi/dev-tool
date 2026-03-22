@@ -1,5 +1,5 @@
 import React from "react";
-import { Hammer, Shield, Zap, Globe } from "lucide-react";
+import { Hammer, Shield, Zap, Star } from "lucide-react";
 
 export const metadata = {
     title: "About DevWallah – Our Mission & Privacy First Approach",
@@ -36,9 +36,9 @@ export default function AboutPage() {
                     </div>
                     <h2 className="text-2xl font-bold">Built for Speed</h2>
                     <p className="text-text-muted leading-relaxed">
-                        Built with Next.js 14, our site is designed to be blazing fast.
-                        No heavy ads, no unnecessary trackers, just the tools you need
-                        when you need them.
+                        DevWallah is designed to be lean and lightning fast. 
+                        With zero ads and no intrusive tracking, you get a clean, 
+                        uninterrupted experience every time you use our tools.
                     </p>
                 </div>
 
@@ -56,12 +56,13 @@ export default function AboutPage() {
 
                 <div className="space-y-4">
                     <div className="bg-accent/10 w-12 h-12 rounded-xl flex items-center justify-center mb-6">
-                        <Globe className="w-6 h-6 text-accent" />
+                        <Star className="w-6 h-6 text-accent" />
                     </div>
-                    <h2 className="text-2xl font-bold">Open & Free</h2>
+                    <h2 className="text-2xl font-bold">Free Forever</h2>
                     <p className="text-text-muted leading-relaxed">
                         DevWallah is free to use and will always be. We believe
-                        basic developer utilities should be accessible to everyone.
+                        essential developer utilities should be accessible to everyone
+                        without any cost or account requirement.
                     </p>
                 </div>
             </div>

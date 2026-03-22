@@ -61,70 +61,82 @@ export default function PasswordGeneratorPage() {
 
     return (
         <ToolLayout tool={tool}>
-            <div className="max-w-2xl mx-auto space-y-8">
-                <div className="card space-y-8 shadow-2xl bg-background-card/50 backdrop-blur-sm border-accent/10">
+            <div className="max-w-3xl mx-auto space-y-8">
+                <div className="card space-y-10 shadow-2xl bg-background-card/50 backdrop-blur-sm border-accent/10 p-8 md:p-12">
 
                     {/* Output Display */}
                     <div className="relative group">
-                        <div className="input-field py-6 px-6 text-2xl font-mono text-accent bg-background-input/80 flex items-center justify-between overflow-hidden">
-                            <span className="truncate mr-4">{password}</span>
-                            <div className="flex gap-2">
-                                <button onClick={generatePassword} className="p-2 hover:bg-accent/10 rounded-lg transition-colors text-text-muted hover:text-accent">
-                                    <RefreshCw className="w-5 h-5" />
+                        <div className="input-field py-8 px-8 text-3xl font-mono text-accent bg-background-input/80 flex items-center justify-between overflow-hidden rounded-2xl border-2 border-accent/20">
+                            <span className="truncate mr-4 selection:bg-accent/30">{password}</span>
+                            <div className="flex gap-3 flex-shrink-0">
+                                <button
+                                    onClick={generatePassword}
+                                    className="p-3 bg-accent/5 hover:bg-accent/15 rounded-xl transition-all text-text-muted hover:text-accent hover:rotate-180 duration-500"
+                                    title="Regenerate password"
+                                >
+                                    <RefreshCw className="w-6 h-6" />
                                 </button>
                                 <button
                                     onClick={handleCopy}
-                                    className={`p-2 rounded-lg transition-all ${showCopyFeedback ? 'bg-success/10 text-success' : 'hover:bg-accent/10 text-text-muted hover:text-accent'}`}
+                                    className={`p-3 rounded-xl transition-all ${showCopyFeedback ? 'bg-success/20 text-success' : 'bg-accent/5 hover:bg-accent/15 text-text-muted hover:text-accent'}`}
+                                    title="Copy to clipboard"
                                 >
-                                    {showCopyFeedback ? <Check className="w-5 h-5" /> : <Clipboard className="w-5 h-5" />}
+                                    {showCopyFeedback ? <Check className="w-6 h-6" /> : <Clipboard className="w-6 h-6" />}
                                 </button>
                             </div>
                         </div>
                         {/* Strength Indicator Bar */}
-                        <div className="absolute bottom-0 left-0 h-1 bg-border w-full rounded-b-lg overflow-hidden">
+                        <div className="absolute bottom-0 left-0 h-1.5 bg-border/20 w-full rounded-b-2xl overflow-hidden">
                             <div
-                                className={`h-full transition-all duration-500 ${strength === 'Weak' ? 'bg-error w-1/3' : strength === 'Medium' ? 'bg-yellow-500 w-2/3' : 'bg-success w-full'}`}
+                                className={`h-full transition-all duration-700 ease-out ${strength === 'Weak' ? 'bg-error w-1/3 shadow-[0_0_10px_rgba(239,68,68,0.5)]' : strength === 'Medium' ? 'bg-yellow-500 w-2/3 shadow-[0_0_10px_rgba(234,179,8,0.5)]' : 'bg-success w-full shadow-[0_0_10px_rgba(34,197,94,0.5)]'}`}
                             />
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div className="space-y-10">
                         {/* Length Slider */}
-                        <div className="space-y-4">
-                            <div className="flex justify-between items-center px-1">
-                                <label className="label mb-0">Password Length</label>
-                                <span className={`text-sm font-bold font-mono ${strengthColor}`}>{length}</span>
+                        <div className="space-y-6 bg-background-input/20 p-6 rounded-2xl border border-border/50">
+                            <div className="flex justify-between items-center">
+                                <label className="text-sm font-bold uppercase tracking-widest text-text-muted">Password Length</label>
+                                <div className="flex items-center gap-3">
+                                    <span className={`text-3xl font-black font-mono tracking-tighter ${strengthColor}`}>{length}</span>
+                                    <span className="text-[10px] font-bold text-text-muted/50 uppercase tracking-widest">chars</span>
+                                </div>
                             </div>
-                            <input
-                                type="range"
-                                min="4"
-                                max="64"
-                                value={length}
-                                onChange={(e) => setLength(parseInt(e.target.value))}
-                                className="w-full accent-accent bg-background-input h-2 rounded-lg appearance-none cursor-pointer"
-                            />
-                            <div className="flex justify-between text-[10px] text-text-muted font-bold uppercase tracking-widest">
-                                <span>4</span>
-                                <span>64</span>
+                            <div className="space-y-2">
+                                <input
+                                    type="range"
+                                    min="4"
+                                    max="64"
+                                    value={length}
+                                    onChange={(e) => setLength(parseInt(e.target.value))}
+                                    className="w-full accent-accent bg-background-input h-3 rounded-full appearance-none cursor-pointer hover:accent-accent-hover transition-all"
+                                />
+                                <div className="flex justify-between text-[10px] text-text-muted font-black uppercase tracking-widest px-1">
+                                    <span>min: 4</span>
+                                    <span>max: 64</span>
+                                </div>
                             </div>
                         </div>
 
-                        {/* Checkboxes */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <OptionToggle label="Uppercase" checked={options.uppercase} onChange={() => setOptions({ ...options, uppercase: !options.uppercase })} />
-                            <OptionToggle label="Lowercase" checked={options.lowercase} onChange={() => setOptions({ ...options, lowercase: !options.lowercase })} />
-                            <OptionToggle label="Numbers" checked={options.numbers} onChange={() => setOptions({ ...options, numbers: !options.numbers })} />
-                            <OptionToggle label="Symbols" checked={options.symbols} onChange={() => setOptions({ ...options, symbols: !options.symbols })} />
+                        {/* Options Grid - Now more spacious */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <OptionToggle label="Uppercase" description="A-Z" checked={options.uppercase} onChange={() => setOptions({ ...options, uppercase: !options.uppercase })} />
+                            <OptionToggle label="Lowercase" description="a-z" checked={options.lowercase} onChange={() => setOptions({ ...options, lowercase: !options.lowercase })} />
+                            <OptionToggle label="Numbers" description="0-9" checked={options.numbers} onChange={() => setOptions({ ...options, numbers: !options.numbers })} />
+                            <OptionToggle label="Symbols" description="!@#$%" checked={options.symbols} onChange={() => setOptions({ ...options, symbols: !options.symbols })} />
                         </div>
                     </div>
 
                     {/* Security Tip */}
-                    <div className="bg-background-input/30 border border-border p-4 rounded-xl flex gap-3 items-start">
-                        {length < 12 ? <TriangleAlert className="w-5 h-5 text-yellow-500 shrink-0" /> : <Shield className="w-5 h-5 text-success shrink-0" />}
-                        <div className="text-xs space-y-1">
-                            <p className={`font-bold uppercase tracking-wider ${strengthColor}`}>Security Level: {strength}</p>
-                            <p className="text-text-muted">
-                                {length < 12 ? "Longer passwords (12+ characters) are significantly harder to crack." : "This password meets modern complexity standards for most services."}
+                    <div className={`border p-5 rounded-2xl flex gap-4 items-center transition-colors duration-500 ${length < 12 ? 'bg-yellow-500/5 border-yellow-500/20' : 'bg-success/5 border-success/20'}`}>
+                        <div className={`p-3 rounded-xl ${length < 12 ? 'bg-yellow-500/10' : 'bg-success/10'}`}>
+                            {length < 12 ? <TriangleAlert className="w-6 h-6 text-yellow-500" /> : <Shield className="w-6 h-6 text-success" />}
+                        </div>
+                        <div className="space-y-1">
+                            <p className={`text-sm font-black uppercase tracking-widest ${strengthColor}`}>Security Status: {strength}</p>
+                            <p className="text-text-muted text-sm leading-relaxed">
+                                {length < 12 ? "Weak. Longer passwords (12+ characters) are exponentially harder to crack." : "Strong. This password meets modern security complexity standards."}
                             </p>
                         </div>
                     </div>
@@ -134,15 +146,18 @@ export default function PasswordGeneratorPage() {
     );
 }
 
-function OptionToggle({ label, checked, onChange }: any) {
+function OptionToggle({ label, description, checked, onChange }: any) {
     return (
         <button
             onClick={onChange}
-            className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all ${checked ? 'border-accent bg-accent/5 text-text-primary' : 'border-border bg-background-input/20 text-text-muted hover:border-accent/30'}`}
+            className={`p-4 rounded-2xl border-2 flex items-center justify-between gap-4 transition-all hover:shadow-lg ${checked ? 'border-accent bg-accent/5 text-text-primary' : 'border-border/50 bg-background-input/10 text-text-muted hover:border-accent/30'}`}
         >
-            <span className="text-[10px] font-bold uppercase tracking-tight">{label}</span>
-            <div className={`w-8 h-4 rounded-full relative transition-colors ${checked ? 'bg-accent' : 'bg-border'}`}>
-                <div className={`absolute top-1 w-2 h-2 rounded-full bg-white transition-all ${checked ? 'left-5' : 'left-1'}`} />
+            <div className="flex flex-col items-start gap-0.5">
+                <span className="text-xs font-black uppercase tracking-widest">{label}</span>
+                <span className="text-[10px] opacity-50 font-mono">{description}</span>
+            </div>
+            <div className={`w-12 h-6 rounded-full relative transition-colors duration-300 ${checked ? 'bg-accent' : 'bg-border/50'}`}>
+                <div className={`absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-all duration-300 ${checked ? 'left-7' : 'left-1'}`} />
             </div>
         </button>
     );
