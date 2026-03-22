@@ -4,7 +4,8 @@ import React, { useState, useMemo, useEffect } from "react";
 import { tools, type Category } from "@/lib/toolRegistry";
 import ToolCard from "@/components/ui/ToolCard";
 import { useFavorites } from "@/hooks/useFavorites";
-import { Search, Terminal, Zap, Shield, X, Star } from "lucide-react";
+import Link from "next/link";
+import { Search, Terminal, Zap, Shield, X, Star, MessageCircle } from "lucide-react";
 
 const CATEGORIES: Category[] = ['JSON', 'Encoding', 'Developer', 'DateTime', 'Misc'];
 
@@ -115,7 +116,7 @@ export default function Home() {
             )}
 
             {/* Tools Grid */}
-            <section className="space-y-8">
+            <section id="tools" className="space-y-8 scroll-mt-24">
                 <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-border pb-4 gap-4">
                     <h2 className="text-2xl font-bold">
                         {activeCategory === 'All' ? 'All Tools' : `${activeCategory} Tools`}
@@ -166,6 +167,24 @@ export default function Home() {
                         </button>
                     </div>
                 )}
+            </section>
+
+            <section className="max-w-3xl mx-auto">
+                <div className="rounded-2xl border border-border bg-background-card p-8 md:p-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 text-center sm:text-left">
+                    <div className="space-y-2 flex-1">
+                        <div className="inline-flex items-center justify-center sm:justify-start gap-2 text-accent">
+                            <MessageCircle className="w-5 h-5" aria-hidden />
+                            <span className="text-xs font-bold uppercase tracking-widest">Feedback</span>
+                        </div>
+                        <h2 className="text-xl font-bold">Something on your mind?</h2>
+                        <p className="text-text-muted text-sm leading-relaxed max-w-md mx-auto sm:mx-0">
+                            Bug reports, feature ideas, or general feedback — we read everything.
+                        </p>
+                    </div>
+                    <Link href="/contact" className="btn-primary whitespace-nowrap shrink-0">
+                        Contact us
+                    </Link>
+                </div>
             </section>
         </div>
     );
