@@ -4,7 +4,7 @@ import { getToolBySlug } from "@/lib/toolRegistry";
 export async function generateMetadata(): Promise<Metadata> {
     const tool = getToolBySlug("csv-to-json")!;
     return {
-        title: `${tool.name} – Free Online Tool | DevToolbox`,
+        title: `${tool.name} – Free Online Tool | DevWallah`,
         description: tool.description,
         keywords: tool.keywords,
     };

@@ -6,7 +6,7 @@ import { getToolBySlug } from "@/lib/toolRegistry";
 import { Clipboard, Check, Trash2, ArrowRight } from "lucide-react";
 
 const EXAMPLE = `{
-  "name": "DevToolbox",
+  "name": "DevWallah",
   "version": "1.0.0",
   "tags": ["developer", "tools"],
   "active": true

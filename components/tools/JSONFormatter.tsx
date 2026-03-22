@@ -62,7 +62,7 @@ export default function JSONFormatter({ tool }: { tool: Tool }) {
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         className={`input-field flex-grow min-h-[400px] resize-none ${error ? 'border-error/50' : ''}`}
-                        placeholder='Paste your JSON here (e.g. {"name": "DevToolbox", "active": true})'
+                        placeholder='Paste your JSON here (e.g. {"name": "DevWallah", "active": true})'
                     />
                     {error && (
                         <div className="bg-error/10 border border-error/20 text-error text-xs p-3 rounded-lg font-mono">

@@ -5,7 +5,7 @@ import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 
 export default function ThemeToggle() {
-    const { theme, setTheme } = useTheme();
+    const { resolvedTheme, setTheme } = useTheme();
     const [mounted, setMounted] = React.useState(false);
 
     // Avoid hydration mismatch
@@ -15,13 +15,16 @@ export default function ThemeToggle() {
 
     if (!mounted) return <div className="w-10 h-10" />;
 
+    const isDark = resolvedTheme === "dark";
+
     return (
         <button
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            type="button"
+            onClick={() => setTheme(isDark ? "light" : "dark")}
             className="p-2 rounded-xl bg-background-input border border-border hover:border-accent/40 transition-all text-text-primary group"
             aria-label="Toggle theme"
         >
-            {theme === "dark" ? (
+            {isDark ? (
                 <Sun className="w-5 h-5 group-hover:text-accent transition-colors" />
             ) : (
                 <Moon className="w-5 h-5 group-hover:text-accent transition-colors" />

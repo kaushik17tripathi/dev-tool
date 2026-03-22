@@ -55,7 +55,7 @@ export default function JSONToYAMLPage() {
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         className="input-field flex-grow min-h-[400px] resize-none"
-                        placeholder='{"name": "DevToolbox", "version": "1.0.0"}'
+                        placeholder='{"name": "DevWallah", "version": "1.0.0"}'
                     />
                     {error && <p className="text-error text-xs font-mono">{error}</p>}
                 </div>

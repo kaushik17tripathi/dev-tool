@@ -65,7 +65,7 @@ export default function HTMLToMarkdownPage() {
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         className="input-field flex-grow min-h-[400px] resize-none font-mono text-sm"
-                        placeholder="<h1>Hello World</h1><p>Welcome to <b>DevToolbox</b>!</p>"
+                        placeholder="<h1>Hello World</h1><p>Welcome to <b>DevWallah</b>!</p>"
                     />
                 </div>
 

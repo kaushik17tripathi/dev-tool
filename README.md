@@ -1,8 +1,8 @@
-# DevToolbox 🛠️
+# DevWallah 🛠️
 
-**DevToolbox** is a comprehensive, open-source collection of developer tools built with Next.js 14, focusing on speed, privacy, and visual excellence. All processing happens client-side, ensuring no user data ever leaves your browser.
+**DevWallah** is a comprehensive, open-source collection of developer tools built with Next.js 14, focusing on speed, privacy, and visual excellence. All processing happens client-side, ensuring no user data ever leaves your browser.
 
-**Live Production URL**: [dev-tool-three.vercel.app](https://dev-tool-three.vercel.app)
+**Live Production URL**: [devwallah.com](https://www.devwallah.com)
 
 ---
 
@@ -73,8 +73,8 @@
 ### Installation
 1.  Clone the repository:
     ```bash
-    git clone https://github.com/your-username/devtoolbox.git
-    cd devtoolbox
+    git clone https://github.com/kaushik-tripathi/devtool.git
+    cd devtool
     ```
 2.  Install dependencies:
     ```bash
@@ -93,4 +93,4 @@
 ## 📜 License
 This project is open-source and available under the [MIT License](LICENSE).
 
-Built with ❤️ by **DevToolbox Team**
+Built with ❤️ by **DevWallah Team**

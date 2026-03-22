@@ -1,6 +1,8 @@
 import type { Config } from "tailwindcss";
+import typography from "@tailwindcss/typography";
 
 const config: Config = {
+    darkMode: ["selector", '[data-theme="dark"]'],
     content: [
         "./pages/**/*.{js,ts,jsx,tsx,mdx}",
         "./components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -10,24 +12,24 @@ const config: Config = {
         extend: {
             colors: {
                 background: {
-                    base: "#0f1117",
-                    card: "#1a1d27",
-                    input: "#12151e",
+                    base: "rgb(var(--background-base) / <alpha-value>)",
+                    card: "rgb(var(--background-card) / <alpha-value>)",
+                    input: "rgb(var(--background-input) / <alpha-value>)",
                 },
                 accent: {
-                    DEFAULT: "#6366f1",
-                    hover: "#818cf8",
+                    DEFAULT: "rgb(var(--accent) / <alpha-value>)",
+                    hover: "rgb(var(--accent-hover) / <alpha-value>)",
                 },
-                success: "#22c55e",
-                error: "#ef4444",
+                success: "rgb(var(--success) / <alpha-value>)",
+                error: "rgb(var(--error) / <alpha-value>)",
                 text: {
-                    primary: "#f1f5f9",
-                    muted: "#64748b",
+                    primary: "rgb(var(--text-primary) / <alpha-value>)",
+                    muted: "rgb(var(--text-muted) / <alpha-value>)",
                 },
-                border: "#2d3148",
+                border: "rgb(var(--border) / <alpha-value>)",
             },
         },
     },
-    plugins: [],
+    plugins: [typography],
 };
 export default config;

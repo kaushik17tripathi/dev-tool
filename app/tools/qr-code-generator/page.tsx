@@ -8,7 +8,7 @@ import QRCode from "qrcode";
 
 export default function QRCodeGeneratorPage() {
     const tool = getToolBySlug("qr-code-generator")!;
-    const [input, setInput] = useState("https://devtoolbox.com");
+    const [input, setInput] = useState("https://DevWallah.com");
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {

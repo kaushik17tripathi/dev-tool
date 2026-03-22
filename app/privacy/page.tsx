@@ -1,8 +1,8 @@
 import React from "react";
 
 export const metadata = {
-    title: "Privacy Policy – DevToolbox",
-    description: "DevToolbox privacy policy: We do not collect, store, or transmit any of your data.",
+    title: "Privacy Policy – DevWallah",
+    description: "DevWallah privacy policy: We do not collect, store, or transmit any of your data.",
 };
 
 export default function PrivacyPage() {
@@ -17,7 +17,7 @@ export default function PrivacyPage() {
                 <div className="space-y-4">
                     <h2 className="text-2xl font-bold">1. Our Commitment to Privacy</h2>
                     <p className="text-text-muted leading-relaxed">
-                        At DevToolbox, your privacy is our single most important feature.
+                        At DevWallah, your privacy is our single most important feature.
                         We believe that you should be able to use developer tools without
                         worrying about where your sensitive data is being sent.
                     </p>
@@ -26,7 +26,7 @@ export default function PrivacyPage() {
                 <div className="space-y-4">
                     <h2 className="text-2xl font-bold">2. Local Processing Only</h2>
                     <p className="text-text-muted leading-relaxed font-bold">
-                        All tools on DevToolbox process data exclusively on your device.
+                        All tools on DevWallah process data exclusively on your device.
                     </p>
                     <p className="text-text-muted leading-relaxed">
                         When you paste a JSON string, a JWT token, or generate a password,

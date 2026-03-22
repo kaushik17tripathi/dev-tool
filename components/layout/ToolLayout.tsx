@@ -64,7 +64,7 @@ export default function ToolLayout({ tool, children, shareValue }: ToolLayoutPro
                         "name": "Is this tool free?",
                         "acceptedAnswer": {
                             "@type": "Answer",
-                            "text": "Absolutely. DevToolbox is and will always be free to use for developers."
+                            "text": "Absolutely. DevWallah is and will always be free to use for developers."
                         }
                     }
                 ]
@@ -73,7 +73,7 @@ export default function ToolLayout({ tool, children, shareValue }: ToolLayoutPro
     };
 
     return (
-        <div className="space-y-12">
+        <div className="space-y-12 min-w-0">
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrg) }}
@@ -120,7 +120,7 @@ export default function ToolLayout({ tool, children, shareValue }: ToolLayoutPro
             </div>
 
             {/* Tool Main Content */}
-            <div className="min-h-[400px]">
+            <div className="relative z-10 isolate min-h-[400px] min-w-0">
                 {children}
             </div>
 
@@ -160,7 +160,7 @@ export default function ToolLayout({ tool, children, shareValue }: ToolLayoutPro
                                 <Icons.ChevronDown className="w-4 h-4 group-open:rotate-180 transition-transform" />
                             </summary>
                             <p className="mt-3 text-sm text-text-muted">
-                                Absolutely. DevToolbox is and will always be free to use for developers.
+                                Absolutely. DevWallah is and will always be free to use for developers.
                             </p>
                         </details>
                     </div>
@@ -169,7 +169,7 @@ export default function ToolLayout({ tool, children, shareValue }: ToolLayoutPro
 
             {/* Related Tools */}
             {relatedTools.length > 0 && (
-                <section className="space-y-8 pt-12 border-t border-border">
+                <section className="relative z-0 space-y-8 pt-12 border-t border-border">
                     <h2 className="text-2xl font-bold">Related {tool.category} Tools</h2>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                         {relatedTools.map(t => (

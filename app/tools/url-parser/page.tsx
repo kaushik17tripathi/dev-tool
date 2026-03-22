@@ -48,7 +48,7 @@ export default function URLParserPage() {
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         className="input-field w-full text-lg"
-                        placeholder="https://example.com/path?name=devtoolbox#top"
+                        placeholder="https://example.com/path?name=DevWallah#top"
                     />
                 </div>
 

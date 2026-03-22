@@ -10,7 +10,7 @@ export default function Navbar() {
                     <div className="bg-accent p-1.5 rounded-lg group-hover:rotate-12 transition-transform shadow-lg shadow-accent/20">
                         <Hammer className="w-5 h-5 text-white" />
                     </div>
-                    <span className="font-bold text-xl tracking-tight">DevToolbox</span>
+                    <span className="font-bold text-xl tracking-tight">DevWallah</span>
                 </Link>
 
                 <div className="hidden md:flex items-center gap-6">

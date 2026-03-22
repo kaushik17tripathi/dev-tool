@@ -9,7 +9,7 @@ export default function RegexTesterPage() {
     const tool = getToolBySlug("regex-tester")!;
     const [pattern, setPattern] = useState("([a-zA-Z0-9._%-]+)@([a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6})");
     const [flags, setFlags] = useState("g");
-    const [input, setInput] = useState("Contact us at support@devtoolbox.dev or admin@example.com");
+    const [input, setInput] = useState("Contact us at support@DevWallah.dev or admin@example.com");
     const [matches, setMatches] = useState<any[]>([]);
     const [error, setError] = useState<string | null>(null);
 

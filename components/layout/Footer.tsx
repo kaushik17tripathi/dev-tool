@@ -6,7 +6,7 @@ export default function Footer() {
             <div className="container mx-auto px-4 max-w-6xl">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
                     <div className="col-span-1 md:col-span-2">
-                        <h3 className="text-xl font-bold mb-4">DevToolbox</h3>
+                        <h3 className="text-xl font-bold mb-4">DevWallah</h3>
                         <p className="text-text-muted mb-4 max-w-sm">
                             A private, fast, and free collection of tools for developers.
                             Everything runs locally in your browser. No data ever leaves your machine.
@@ -31,7 +31,7 @@ export default function Footer() {
                     </div>
                 </div>
                 <div className="border-t border-border pt-8 text-center text-text-muted text-sm">
-                    <p>© {new Date().getFullYear()} DevToolbox. Built with ❤️ for developers.</p>
+                    <p>© {new Date().getFullYear()} DevWallah. Built with ❤️ for developers.</p>
                 </div>
             </div>
         </footer>
