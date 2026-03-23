@@ -36,7 +36,7 @@ export default function URLEncoderPage() {
 
     return (
         <ToolLayout tool={tool} shareValue={input}>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
+            <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
                 {/* Input Panel */}
                 <div className="space-y-4 flex flex-col">
                     <div className="flex items-center justify-between">
@@ -49,13 +49,6 @@ export default function URLEncoderPage() {
                         className="input-field flex-grow min-h-[300px] resize-none"
                         placeholder={mode === "encode" ? "e.g. https://example.com/search?q=hello world" : "e.g. https%3A%2F%2Fexample.com%2Fsearch%3Fq%3Dhello%20world"}
                     />
-                </div>
-
-                {/* Controls */}
-                <div className="hidden lg:flex flex-col justify-center items-center -mx-4 z-10">
-                    <button onClick={toggleMode} className="bg-accent p-3 rounded-full hover:scale-110 active:scale-95 transition-all shadow-lg text-white">
-                        <ArrowDownUp className="w-6 h-6" />
-                    </button>
                 </div>
 
                 {/* Output Panel */}
@@ -81,6 +74,16 @@ export default function URLEncoderPage() {
                         <Globe className="w-4 h-4 text-accent shrink-0" />
                         <p>This tool uses <code>encodeURIComponent</code> for encoding to ensure all reserved characters are safely escaped for query parameters.</p>
                     </div>
+                </div>
+
+                {/* Controls */}
+                <div className="hidden lg:flex absolute inset-y-0 left-1/2 -translate-x-1/2 justify-center items-center z-10 pointer-events-none">
+                    <button
+                        onClick={toggleMode}
+                        className="bg-accent p-3 rounded-full hover:scale-110 active:scale-95 transition-all shadow-lg text-white pointer-events-auto"
+                    >
+                        <ArrowDownUp className="w-6 h-6" />
+                    </button>
                 </div>
             </div>
         </ToolLayout>
