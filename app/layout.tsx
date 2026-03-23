@@ -14,14 +14,17 @@ const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.devwallah.com';
 
 export const metadata: Metadata = {
     metadataBase: new URL(baseUrl),
+    applicationName: "DevWallah",
+    publisher: "DevWallah",
+    appleWebApp: {
+        title: "DevWallah",
+        statusBarStyle: "default",
+    },
     title: {
         default: "DevWallah – Free & Private Online Developer Tools",
         template: "%s | DevWallah"
     },
     description: "A collection of fast, private, and free developer tools like JSON Formatter, Base64 Encoder, JWT Decoder, and more. No data ever leaves your browser.",
-    icons: {
-        icon: "/favicon.ico",
-    },
     openGraph: {
         title: "DevWallah – Free & Private Online Developer Tools",
         description: "A collection of fast, private, and free developer tools. 100% client-side, 100% private.",
