@@ -19,6 +19,14 @@ export const metadata: Metadata = {
     metadataBase: new URL(baseUrl),
     applicationName: "DevWallah",
     publisher: "DevWallah",
+    icons: {
+        icon: [
+            { url: "/favicon.svg", type: "image/svg+xml" },
+            { url: "/icon.svg", type: "image/svg+xml" },
+        ],
+        shortcut: "/favicon.svg",
+        apple: "/favicon.svg",
+    },
     appleWebApp: {
         title: "DevWallah",
         statusBarStyle: "default",
