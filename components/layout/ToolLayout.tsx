@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import * as Icons from "lucide-react";
 import { type Tool, tools } from "@/lib/toolRegistry";
 import ToolCard from "@/components/ui/ToolCard";
 import { useFavorites } from "@/hooks/useFavorites";
+import { useRecentTools } from "@/hooks/useRecentTools";
 import { getShareUrl } from "@/lib/shareUtils";
 
 interface ToolLayoutProps {
@@ -16,8 +17,13 @@ interface ToolLayoutProps {
 
 export default function ToolLayout({ tool, children, shareValue }: ToolLayoutProps) {
     const { toggleFavorite, isFavorite } = useFavorites();
+    const { recordVisit } = useRecentTools();
     const [shareFeedback, setShareFeedback] = useState(false);
     const IconComponent = (Icons as any)[tool.icon] || Icons.HelpCircle;
+
+    useEffect(() => {
+        recordVisit(tool.slug);
+    }, [tool.slug, recordVisit]);
 
     const handleShare = () => {
         if (!shareValue) return;
@@ -73,45 +79,45 @@ export default function ToolLayout({ tool, children, shareValue }: ToolLayoutPro
     };
 
     return (
-        <div className="space-y-12 min-w-0">
+        <div className="space-y-16 min-w-0 pt-10">
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrg) }}
             />
             {/* Breadcrumbs */}
-            <nav className="flex items-center gap-2 text-sm text-text-muted">
+            <nav className="flex items-center gap-3 text-[10px] uppercase font-black tracking-[0.2em] text-text-muted mb-8">
                 <Link href="/" className="hover:text-accent transition-colors">Home</Link>
-                <Icons.ChevronRight className="w-4 h-4" />
-                <span className="text-text-primary px-2 py-0.5 bg-background-input rounded border border-border">
+                <Icons.ChevronRight className="w-3 h-3" strokeWidth={3} />
+                <span className="text-background-base bg-text-primary px-3 py-1 scale-90 origin-left">
                     {tool.category}
                 </span>
-                <Icons.ChevronRight className="w-4 h-4" />
-                <span className="text-text-primary font-medium">{tool.name}</span>
+                <Icons.ChevronRight className="w-3 h-3" strokeWidth={3} />
+                <span className="text-text-primary">{tool.name}</span>
             </nav>
 
             {/* Tool Header */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-8 border-b border-border">
-                <div className="flex items-center gap-4">
-                    <div className="bg-accent/10 p-4 rounded-2xl">
-                        <IconComponent className="w-8 h-8 text-accent" />
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 pb-10 border-b-2 border-border/60">
+                <div className="space-y-6">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-text-primary text-background-base rounded-2xl shadow-xl">
+                        <IconComponent className="w-8 h-8" strokeWidth={1.5} />
                     </div>
                     <div>
-                        <h1 className="text-3xl font-extrabold tracking-tight">{tool.name}</h1>
-                        <p className="text-text-muted mt-1">{tool.description}</p>
+                        <h1 className="text-5xl md:text-6xl font-display font-black tracking-tighter mb-4">{tool.name}</h1>
+                        <p className="text-xl text-text-muted font-medium max-w-2xl">{tool.description}</p>
                     </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4 shrink-0">
                     <button
                         onClick={handleShare}
                         disabled={!shareValue}
-                        className={`btn-secondary flex items-center gap-2 text-sm transition-all ${shareFeedback ? 'text-success border-success/50' : ''}`}
+                        className={`btn-secondary flex items-center gap-3 transition-all ${shareFeedback ? 'border-success text-success' : ''}`}
                     >
                         {shareFeedback ? <Icons.Check className="w-4 h-4" /> : <Icons.Share2 className="w-4 h-4" />}
-                        <span>{shareFeedback ? 'Link Copied!' : 'Share'}</span>
+                        <span>{shareFeedback ? 'Copied URL' : 'Share State'}</span>
                     </button>
                     <button
                         onClick={() => toggleFavorite(tool.slug)}
-                        className={`btn-secondary flex items-center gap-2 text-sm transition-all ${starred ? 'text-yellow-500 bg-yellow-500/10 border-yellow-500/50' : ''}`}
+                        className={`btn-secondary flex items-center gap-3 transition-all ${starred ? 'border-yellow-400 text-yellow-400 bg-yellow-400/5' : ''}`}
                     >
                         <Icons.Star className={`w-4 h-4 ${starred ? 'fill-current' : ''}`} />
                         <span>{starred ? 'Favorited' : 'Favorite'}</span>
@@ -125,42 +131,49 @@ export default function ToolLayout({ tool, children, shareValue }: ToolLayoutPro
             </div>
 
             {/* SEO/Content Section */}
-            <section className="grid grid-cols-1 md:grid-cols-2 gap-12 py-12 border-t border-border">
-                <div className="space-y-6">
-                    <h2 className="text-2xl font-bold">How to use {tool.name}</h2>
-                    <div className="space-y-4 text-text-muted leading-relaxed">
+            <section className="grid grid-cols-1 md:grid-cols-2 gap-16 py-16 border-t border-border/60 mt-16">
+                <div className="space-y-8">
+                    <h2 className="text-3xl font-display font-black tracking-tight">How to use {tool.name}</h2>
+                    <div className="space-y-6 text-text-muted font-medium leading-relaxed">
                         <p>
-                            This {tool.name.toLowerCase()} is designed to be fast and secure.
-                            To get started, simply paste or type your content into the input area.
+                            This {tool.name.toLowerCase()} is designed to be blazingly fast and 100% secure.
+                            Everything runs inside your browser sandbox.
                         </p>
-                        <ul className="list-disc pl-5 space-y-2">
-                            <li>Input your data in the provided text area.</li>
-                            <li>The tool will automatically process your input in real-time.</li>
-                            <li>Check the output section for the results.</li>
-                            <li>Use the copy button to save the result to your clipboard.</li>
+                        <ul className="space-y-4">
+                            <li className="flex gap-4">
+                                <span className="text-accent font-black">01</span> Input your data in the provided text area.
+                            </li>
+                            <li className="flex gap-4">
+                                <span className="text-accent font-black">02</span> The tool will automatically process your input in real-time.
+                            </li>
+                            <li className="flex gap-4">
+                                <span className="text-accent font-black">03</span> Check the output section for the results.
+                            </li>
+                            <li className="flex gap-4">
+                                <span className="text-accent font-black">04</span> Use the copy button to save the result.
+                            </li>
                         </ul>
                     </div>
                 </div>
-                <div className="space-y-6">
-                    <h2 className="text-2xl font-bold">Frequently Asked Questions</h2>
+                <div className="space-y-8">
+                    <h2 className="text-3xl font-display font-black tracking-tight">FAQ</h2>
                     <div className="space-y-4">
-                        <details className="group border border-border rounded-lg p-4 cursor-pointer hover:bg-background-input transition-colors">
-                            <summary className="font-bold list-none flex justify-between items-center text-text-primary">
+                        <details className="group border border-border bg-background-card p-6 cursor-pointer hover:border-text-primary/30 transition-colors">
+                            <summary className="font-display font-bold text-lg list-none flex justify-between items-center text-text-primary">
                                 Is my data safe?
-                                <Icons.ChevronDown className="w-4 h-4 group-open:rotate-180 transition-transform" />
+                                <Icons.Plus className="w-5 h-5 group-open:rotate-45 transition-transform" />
                             </summary>
-                            <p className="mt-3 text-sm text-text-muted">
-                                Yes! All processing happens locally in your browser. We never send your data to any server.
-                                Your privacy is our top priority.
+                            <p className="mt-4 text-text-muted font-medium leading-relaxed">
+                                Yes. All processing happens locally in your browser leveraging WebAssembly or standard JS. We never send your data to any server. Your privacy is structurally guaranteed.
                             </p>
                         </details>
-                        <details className="group border border-border rounded-lg p-4 cursor-pointer hover:bg-background-input transition-colors">
-                            <summary className="font-bold list-none flex justify-between items-center text-text-primary">
+                        <details className="group border border-border bg-background-card p-6 cursor-pointer hover:border-text-primary/30 transition-colors">
+                            <summary className="font-display font-bold text-lg list-none flex justify-between items-center text-text-primary">
                                 Is this tool free?
-                                <Icons.ChevronDown className="w-4 h-4 group-open:rotate-180 transition-transform" />
+                                <Icons.Plus className="w-5 h-5 group-open:rotate-45 transition-transform" />
                             </summary>
-                            <p className="mt-3 text-sm text-text-muted">
-                                Absolutely. DevWallah is and will always be free to use for developers.
+                            <p className="mt-4 text-text-muted font-medium leading-relaxed">
+                                Absolutely. DevWallah is built by developers, for developers, and will always be free to use.
                             </p>
                         </details>
                     </div>

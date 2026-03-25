@@ -10,6 +10,11 @@ const config: Config = {
     ],
     theme: {
         extend: {
+            fontFamily: {
+                sans: ['var(--font-dm-sans)', 'system-ui', 'sans-serif'],
+                display: ['var(--font-outfit)', 'system-ui', 'sans-serif'],
+                mono: ['var(--font-jetbrains)', 'ui-monospace', 'monospace'],
+            },
             colors: {
                 background: {
                     base: "rgb(var(--background-base) / <alpha-value>)",
@@ -19,6 +24,7 @@ const config: Config = {
                 accent: {
                     DEFAULT: "rgb(var(--accent) / <alpha-value>)",
                     hover: "rgb(var(--accent-hover) / <alpha-value>)",
+                    fg: "rgb(var(--accent-fg) / <alpha-value>)",
                 },
                 success: "rgb(var(--success) / <alpha-value>)",
                 error: "rgb(var(--error) / <alpha-value>)",
@@ -28,6 +34,13 @@ const config: Config = {
                 },
                 border: "rgb(var(--border) / <alpha-value>)",
             },
+            backgroundImage: {
+                'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+                'gradient-conic': 'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+            },
+            boxShadow: {
+                'glow': '0 0 40px -10px rgb(var(--accent) / 0.5)',
+            }
         },
     },
     plugins: [typography],

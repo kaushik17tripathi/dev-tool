@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Outfit, DM_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -7,8 +7,11 @@ import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import FloatingShapes from "@/components/ui/FloatingShapes";
 
-const inter = Inter({ subsets: ["latin"] });
+const outfit = Outfit({ subsets: ["latin"], variable: '--font-outfit' });
+const dmSans = DM_Sans({ subsets: ["latin"], variable: '--font-dm-sans' });
+const jetbrains = JetBrains_Mono({ subsets: ["latin"], variable: '--font-jetbrains' });
 
 const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.devwallah.com';
 
@@ -74,15 +77,24 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" suppressHydrationWarning>
-            <body className={`${inter.className} min-h-screen flex flex-col`}>
+            <body className={`${dmSans.className} ${outfit.variable} ${jetbrains.variable} font-sans min-h-screen flex flex-col antialiased selection:bg-accent selection:text-accent-fg relative`}>
                 <ThemeProvider
                     attribute="data-theme"
                     defaultTheme="dark"
                     enableSystem
                     disableTransitionOnChange
                 >
+                    <div
+                        className="absolute inset-0 -z-30"
+                        style={{
+                            backgroundImage:
+                                "radial-gradient(1150px circle at 18% -10%, rgb(var(--accent) / var(--accent-glow)), transparent 58%), radial-gradient(850px circle at 88% 0%, rgb(var(--accent) / calc(var(--accent-glow) * 0.7)), transparent 56%), linear-gradient(to bottom, rgb(var(--background-base)) 0%, rgb(var(--background-base)) 65%, rgb(var(--background-base) / 0.92) 100%)",
+                        }}
+                    />
+                    <div className="absolute inset-0 -z-20 h-full w-full bg-grid [mask-image:linear-gradient(to_bottom,white,transparent)]"></div>
+                    <FloatingShapes />
                     <Navbar />
-                    <main className="flex-grow container mx-auto px-4 py-8 max-w-6xl">
+                    <main className="flex-grow container mx-auto px-4 py-12 max-w-7xl relative z-0">
                         {children}
                     </main>
                     <Footer />

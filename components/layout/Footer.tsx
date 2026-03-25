@@ -3,13 +3,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { tools, type Tool } from "@/lib/toolRegistry";
+import { Hammer } from "lucide-react";
 
-/** Featured in the footer; full catalog is on the home page. */
 const FOOTER_FEATURED_SLUGS = [
     "json-formatter",
     "base64-encoder-decoder",
     "jwt-decoder",
     "uuid-generator",
+    "password-generator",
+    "regex-tester",
 ] as const;
 
 function featuredFooterTools(): Tool[] {
@@ -18,85 +20,126 @@ function featuredFooterTools(): Tool[] {
     );
 }
 
-function toolLinkClass(pathname: string | null, href: string): string {
-    const base = "transition-colors hover:text-accent";
-    const active = pathname === href;
-    return active ? `${base} text-accent font-medium` : `${base} text-text-muted`;
-}
-
 export default function Footer() {
     const pathname = usePathname();
     const featured = featuredFooterTools();
 
+    const isActive = (href: string) => pathname === href;
+
     return (
-        <footer className="border-t border-border py-14 bg-background-base mt-20">
-            <div className="container mx-auto px-4 max-w-6xl">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-10 md:gap-8 mb-14 md:items-start">
-                    <div className="col-span-1 md:col-span-2">
-                        <h3 className="text-xl font-bold mb-4">DevWallah</h3>
-                        <p className="text-text-muted mb-4 max-w-sm leading-relaxed">
-                            A private, fast, and free collection of tools for developers.
-                            Everything runs locally in your browser. No data ever leaves your machine.
-                        </p>
-                        <Link href="/about" className="text-accent hover:underline text-sm font-medium">
-                            Learn more about our mission →
-                        </Link>
-                    </div>
+        <footer className="relative mt-32 border-t border-border/50 bg-background-base">
+            {/* Gradient top border effect */}
+            <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent"></div>
+
+            <div className="container mx-auto px-4 max-w-7xl">
+                {/* Big wordmark */}
+                <div className="py-16 md:py-20">
+                    <Link href="/" className="inline-flex items-center gap-3 group">
+                        <div className="bg-text-primary p-2 rounded-full group-hover:rotate-12 group-hover:scale-110 transition-transform duration-500">
+                            <Hammer className="w-5 h-5 text-background-base" />
+                        </div>
+                        <span className="text-4xl md:text-5xl font-display font-black tracking-tighter">DevWallah</span>
+                    </Link>
+                    <p className="text-text-muted font-medium mt-4 max-w-md leading-relaxed">
+                        A private, blazing-fast, and free collection of developer tools.
+                        Everything runs locally in your browser sandbox.
+                    </p>
+                </div>
+
+                {/* 4 Column Grid */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-10 py-12 border-t border-border/40">
+                    {/* Popular Tools */}
                     <div>
-                        <h4 className="font-bold mb-4">Tools</h4>
-                        <ul className="space-y-2">
-                            {featured.map((tool) => {
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted mb-6">Popular Tools</h4>
+                        <ul className="space-y-3">
+                            {featured.slice(0, 3).map((tool) => {
                                 const href = `/tools/${tool.slug}`;
                                 return (
                                     <li key={tool.slug}>
                                         <Link
                                             href={href}
-                                            className={toolLinkClass(pathname, href)}
-                                            aria-current={pathname === href ? "page" : undefined}
+                                            className={`text-sm font-medium transition-colors hover:text-accent ${isActive(href) ? 'text-accent' : 'text-text-muted'}`}
                                         >
                                             {tool.name}
                                         </Link>
                                     </li>
                                 );
                             })}
-                            <li className="pt-1">
-                                <Link
-                                    href="/#tools"
-                                    className="text-sm font-medium text-accent hover:underline"
-                                >
-                                    Browse all tools →
+                        </ul>
+                    </div>
+
+                    {/* More Tools */}
+                    <div>
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted mb-6">More Tools</h4>
+                        <ul className="space-y-3">
+                            {featured.slice(3).map((tool) => {
+                                const href = `/tools/${tool.slug}`;
+                                return (
+                                    <li key={tool.slug}>
+                                        <Link
+                                            href={href}
+                                            className={`text-sm font-medium transition-colors hover:text-accent ${isActive(href) ? 'text-accent' : 'text-text-muted'}`}
+                                        >
+                                            {tool.name}
+                                        </Link>
+                                    </li>
+                                );
+                            })}
+                            <li>
+                                <Link href="/#tools" className="text-sm font-bold text-accent hover:underline">
+                                    Browse all →
                                 </Link>
                             </li>
                         </ul>
                     </div>
+
+                    {/* Resources */}
                     <div>
-                        <h4 className="font-bold mb-4">Legal</h4>
-                        <ul className="space-y-2 text-text-muted">
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted mb-6">Resources</h4>
+                        <ul className="space-y-3">
                             <li>
-                                <Link
-                                    href="/contact"
-                                    className={toolLinkClass(pathname, "/contact")}
-                                    aria-current={pathname === "/contact" ? "page" : undefined}
-                                >
-                                    Contact
+                                <Link href="/about" className={`text-sm font-medium transition-colors hover:text-accent ${isActive('/about') ? 'text-accent' : 'text-text-muted'}`}>
+                                    About
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/privacy" className="hover:text-accent transition-colors">
+                                <Link href="/changelog" className={`text-sm font-medium transition-colors hover:text-accent ${isActive('/changelog') ? 'text-accent' : 'text-text-muted'}`}>
+                                    Changelog
+                                </Link>
+                            </li>
+                            <li>
+                                <Link href="/contact" className={`text-sm font-medium transition-colors hover:text-accent ${isActive('/contact') ? 'text-accent' : 'text-text-muted'}`}>
+                                    Contact
+                                </Link>
+                            </li>
+                        </ul>
+                    </div>
+
+                    {/* Legal */}
+                    <div>
+                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-text-muted mb-6">Legal</h4>
+                        <ul className="space-y-3">
+                            <li>
+                                <Link href="/privacy" className={`text-sm font-medium transition-colors hover:text-accent ${isActive('/privacy') ? 'text-accent' : 'text-text-muted'}`}>
                                     Privacy Policy
                                 </Link>
                             </li>
                             <li>
-                                <Link href="/terms" className="hover:text-accent transition-colors">
+                                <Link href="/terms" className={`text-sm font-medium transition-colors hover:text-accent ${isActive('/terms') ? 'text-accent' : 'text-text-muted'}`}>
                                     Terms of Service
                                 </Link>
                             </li>
                         </ul>
                     </div>
                 </div>
-                <div className="border-t border-border pt-10 pb-2">
-                    <p className="text-center text-text-muted text-sm leading-relaxed">
-                        © {new Date().getFullYear()} DevWallah. Built with ❤️ for developers.
+
+                {/* Bottom bar */}
+                <div className="border-t border-border/40 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <p className="text-text-muted text-xs font-medium">
+                        © {new Date().getFullYear()} DevWallah. Made with precision for developers.
+                    </p>
+                    <p className="text-text-muted/50 text-xs font-medium">
+                        All tools run 100% client-side. Your data never touches a server.
                     </p>
                 </div>
             </div>
