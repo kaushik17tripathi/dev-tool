@@ -3,6 +3,11 @@ import { Resend } from "resend";
 
 const MAX_MESSAGE = 10_000;
 
+// Simple in-memory rate limiting (Effective during burst attacks when lambda is warm)
+// For persistent rate limiting across cold starts, consider Upstash Redis or Vercel KV.
+const lastRequestByIp = new Map<string, number>();
+const RATE_LIMIT_CD = 2 * 60 * 1000; // 2 minutes
+
 function getResend() {
     const key = process.env.RESEND_API_KEY;
     if (!key) return null;
@@ -10,6 +15,18 @@ function getResend() {
 }
 
 export async function POST(request: Request) {
+    // Basic IP detection (for proxy-aware environments)
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0] || "unknown";
+    const now = Date.now();
+    const lastSent = lastRequestByIp.get(ip);
+
+    if (lastSent && now - lastSent < RATE_LIMIT_CD) {
+        return NextResponse.json(
+            { error: "Too many messages. Please wait 2 minutes." },
+            { status: 429 }
+        );
+    }
+
     const resend = getResend();
     if (!resend) {
         return NextResponse.json(
@@ -41,6 +58,9 @@ export async function POST(request: Request) {
     if (typeof message !== "string" || !message.trim()) {
         return NextResponse.json({ error: "Message is required." }, { status: 400 });
     }
+
+    // Pass honeypot and valid message? Record the attempt for this IP
+    lastRequestByIp.set(ip, now);
 
     const trimmed = message.trim();
     if (trimmed.length > MAX_MESSAGE) {
@@ -84,6 +104,15 @@ export async function POST(request: Request) {
 
     if (error) {
         console.error("[contact]", error);
+        
+        // Handle Resend specific errors (e.g. quota reached)
+        if (error.name === 'rate_limit_exceeded') {
+            return NextResponse.json(
+                { error: "Daily email quota reached. Please try again tomorrow or copy your message as text." },
+                { status: 429 }
+            );
+        }
+
         return NextResponse.json(
             { error: "Could not send your message. Please try again later." },
             { status: 502 }

@@ -44,6 +44,24 @@ export default function ContactForm() {
         const trimmed = message.trim();
         if (!trimmed) return;
 
+        // Frontend Honeypot Check (Simulate success for bots without hitting API)
+        if (company.trim()) {
+            setSuccess(true);
+            setMessage("");
+            setSubject("");
+            return;
+        }
+
+        // Client-side Rate Limiting (Protects Quota)
+        const COOLDOWN_MS = 2 * 60 * 1000; // 2 minutes
+        const lastSent = typeof window !== 'undefined' ? localStorage.getItem('last_contact_sent') : null;
+        
+        if (lastSent && Date.now() - parseInt(lastSent) < COOLDOWN_MS) {
+            const minutesLeft = Math.ceil((COOLDOWN_MS - (Date.now() - parseInt(lastSent))) / 60000);
+            setError(`You've sent a message recently. Please wait ${minutesLeft} ${minutesLeft === 1 ? 'minute' : 'minutes'} before sending another.`);
+            return;
+        }
+
         setError(null);
         setSuccess(false);
         setIsSubmitting(true);
@@ -69,6 +87,10 @@ export default function ContactForm() {
                 setSuccess(true);
                 setMessage("");
                 setSubject("");
+                // Save submission time to prevent spam
+                if (typeof window !== 'undefined') {
+                    localStorage.setItem('last_contact_sent', Date.now().toString());
+                }
                 return;
             }
 
