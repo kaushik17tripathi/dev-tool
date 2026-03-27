@@ -491,7 +491,8 @@ export default function ApiClientPage() {
     // ── Main Render ──────────────────────────────────────────────────────────
     return (
         <ToolLayout tool={tool}>
-            <div className="space-y-4">
+            <div className="bg-background-card border border-border rounded-[2.5rem] p-6 md:p-10 shadow-sm space-y-8 mt-10">
+                <div className="space-y-6">
                 {/* ── Toolbar ──────────────────────────────────────── */}
                 <div className="flex items-center justify-between gap-2 flex-wrap">
                     <div className="flex items-center gap-2">
@@ -543,27 +544,29 @@ export default function ApiClientPage() {
                 </div>
 
                 {/* ── URL Bar ─────────────────────────────────────── */}
-                <div className="flex gap-2">
-                    <select
-                        className={`bg-background-input border border-border rounded-lg px-3 py-2.5 text-sm font-bold ${methodColors[activeTab.method] || 'text-gray-400'}`}
-                        value={activeTab.method}
-                        onChange={(e) => updateActiveTab({ method: e.target.value })}
-                    >
-                        {['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'].map(m => (
-                            <option key={m} value={m}>{m}</option>
-                        ))}
-                    </select>
-                    <input
-                        type="text"
-                        placeholder="Enter URL or paste cURL..."
-                        className="flex-1 bg-background-input border border-border rounded-lg px-4 py-2.5 text-sm font-mono text-text-primary focus:outline-none focus:border-accent"
-                        value={activeTab.url}
-                        onChange={(e) => updateActiveTab({ url: e.target.value, name: e.target.value.split('/').pop() || 'Request' })}
-                    />
+                <div className="flex flex-col md:flex-row gap-3">
+                    <div className="flex-1 flex gap-2">
+                        <select
+                            className={`bg-background-input border border-border rounded-2xl px-4 py-3 text-sm font-black tracking-tight ${methodColors[activeTab.method] || 'text-gray-400'}`}
+                            value={activeTab.method}
+                            onChange={(e) => updateActiveTab({ method: e.target.value })}
+                        >
+                            {['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'].map(m => (
+                                <option key={m} value={m}>{m}</option>
+                            ))}
+                        </select>
+                        <input
+                            type="text"
+                            placeholder="Enter URL or paste cURL..."
+                            className="flex-1 bg-background-input border border-border rounded-2xl px-6 py-3 text-sm font-mono text-text-primary focus:outline-none focus:border-accent transition-all"
+                            value={activeTab.url}
+                            onChange={(e) => updateActiveTab({ url: e.target.value, name: e.target.value.split('/').pop() || 'Request' })}
+                        />
+                    </div>
                     <button
                         onClick={handleSendRequest}
                         disabled={isClientLoading || !activeTab.url}
-                        className="btn-primary flex items-center gap-2 px-6 py-2.5 text-sm font-bold disabled:opacity-50"
+                        className="btn-primary flex items-center justify-center gap-3 px-10 py-3.5 text-sm font-black uppercase tracking-widest disabled:opacity-50 active:scale-95 transition-all shadow-xl shadow-accent/20"
                     >
                         {isClientLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                         Send
@@ -925,6 +928,7 @@ export default function ApiClientPage() {
                     </div>
                 </div>
             )}
+                </div>
         </ToolLayout>
     );
 }
