@@ -230,7 +230,7 @@ const executeQueryMethod = (sql: string, collections: any[]) => {
     throw new Error('Unsupported query method. Use SELECT, INSERT, UPDATE, or DELETE.');
 };
 
-export async function handleRequest(req: NextRequest, { params }: any) {
+async function handleRequest(req: NextRequest, { params }: any) {
     const startTime = Date.now();
     const reqPath = '/' + (params.path?.join('/') || '');
     const reqMethod = req.method.toUpperCase();

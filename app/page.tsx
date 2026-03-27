@@ -155,7 +155,7 @@ export default function Home() {
 
                 <div className="space-y-6">
                     <h1 className="animate-in-up delay-100 text-5xl md:text-8xl font-display font-black tracking-tighter leading-[0.9]">
-                        The Developer's <br />
+                        The Developer&apos;s <br />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-text-primary via-text-primary to-text-muted">Utility Belt.</span>
                     </h1>
                     
@@ -236,8 +236,8 @@ export default function Home() {
                                     })
                                 ) : (
                                     <div className="p-8 text-center space-y-3">
-                                        <Icons.Search className="w-10 h-10 text-text-muted mx-auto opacity-20" />
-                                        <div className="text-sm font-display font-black">No tools found for "{searchQuery}"</div>
+                                         <Icons.Search className="w-10 h-10 text-text-muted mx-auto opacity-20" />
+                                        <div className="text-sm font-display font-black">No tools found for &quot;{searchQuery}&quot;</div>
                                         <div className="text-[10px] font-bold text-text-muted uppercase tracking-widest">Try searching for JSON, JWT, or UI</div>
                                     </div>
                                 )}

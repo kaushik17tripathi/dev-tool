@@ -78,6 +78,7 @@ export function EndpointEditor({ endpoint, onSave, onUpdate }: EndpointEditorPro
 
     useEffect(() => {
         setBodyStr(typeof endpoint.body === 'string' ? endpoint.body : JSON.stringify(endpoint.body, null, 2));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [endpoint.id]); // Only reset bodyStr when switching endpoints
 
     const handleChange = (updates: Partial<MockEndpoint>) => {

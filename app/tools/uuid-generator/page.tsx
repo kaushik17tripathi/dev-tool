@@ -12,14 +12,14 @@ export default function UUIDGeneratorPage() {
     const [count, setCount] = useState(5);
     const [showCopyFeedback, setShowCopyFeedback] = useState<number | null>(null);
 
-    const generateUUIDs = () => {
+    const generateUUIDs = React.useCallback(() => {
         const newUuids = Array.from({ length: count }, () => uuidv4());
         setUuids(newUuids);
-    };
+    }, [count]);
 
     useEffect(() => {
         generateUUIDs();
-    }, [count]);
+    }, [generateUUIDs]);
 
     const handleCopy = (text: string, index: number) => {
         navigator.clipboard.writeText(text);

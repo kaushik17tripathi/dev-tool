@@ -180,7 +180,7 @@ export default function FakeJsonGeneratorPage() {
                             </div>
                         </div>
                         <div className="bg-background-input border border-border rounded-xl p-4 h-[600px] font-mono text-xs overflow-y-auto whitespace-pre leading-relaxed scrollbar-thin">
-                            {output || <span className="text-text-muted italic">Click "Generate" to produce fake data…</span>}
+                            {output || <span className="text-text-muted italic">Click &quot;Generate&quot; to produce fake data…</span>}
                         </div>
                     </div>
                 </div>

@@ -14,11 +14,11 @@ export default function LoremIpsumGeneratorPage() {
 
     const LOREM_TEXT = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
-    const generate = () => {
+    const generate = React.useCallback(() => {
         let result = "";
         if (type === "paragraphs") {
-            resultArray = Array(count).fill(LOREM_TEXT);
-            result = resultArray.join("\n\n");
+            const resArray = Array(count).fill(LOREM_TEXT);
+            result = resArray.join("\n\n");
         } else if (type === "sentences") {
             const sentences = LOREM_TEXT.split(". ");
             const temp = [];
@@ -35,14 +35,12 @@ export default function LoremIpsumGeneratorPage() {
             result = temp.join(" ");
         }
         setOutput(result);
-    };
-
-    let resultArray: string[] = [];
+    }, [count, type]);
 
     // Initialize
     React.useEffect(() => {
         generate();
-    }, []);
+    }, [generate]);
 
     const handleCopy = () => {
         navigator.clipboard.writeText(output);
