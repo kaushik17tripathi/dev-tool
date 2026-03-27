@@ -22,7 +22,150 @@ interface Endpoint {
     errorType: string;
     errorRate?: number;
     body: any;
+    stateConfig?: {
+        enabled: boolean;
+        collectionId: string;
+        operation: 'LIST' | 'GET' | 'CREATE' | 'UPDATE' | 'DELETE' | string;
+    };
 }
+
+const getValueByPath = (obj: any, pathExpr: string) => {
+    return pathExpr.split('.').reduce((acc: any, part: string) => acc?.[part], obj);
+};
+
+const parseSqlLiteral = (raw: string) => {
+    const trimmed = raw.trim();
+    if ((trimmed.startsWith("'") && trimmed.endsWith("'")) || (trimmed.startsWith('"') && trimmed.endsWith('"'))) {
+        return trimmed.slice(1, -1);
+    }
+    if (/^-?\d+(\.\d+)?$/.test(trimmed)) return Number(trimmed);
+    if (/^(true|false)$/i.test(trimmed)) return trimmed.toLowerCase() === 'true';
+    if (/^null$/i.test(trimmed)) return null;
+    return trimmed;
+};
+
+const splitSqlCsv = (input: string) => {
+    const result: string[] = [];
+    let current = '';
+    let quote: string | null = null;
+    for (let i = 0; i < input.length; i++) {
+        const ch = input[i];
+        if ((ch === "'" || ch === '"') && input[i - 1] !== '\\') {
+            if (!quote) quote = ch;
+            else if (quote === ch) quote = null;
+            current += ch;
+            continue;
+        }
+        if (ch === ',' && !quote) {
+            result.push(current.trim());
+            current = '';
+            continue;
+        }
+        current += ch;
+    }
+    result.push(current.trim());
+    return result;
+};
+
+const matchesWhereClause = (row: any, whereRaw?: string) => {
+    if (!whereRaw) return true;
+    const clauses = whereRaw.split(/\s+AND\s+/i).map(c => c.trim()).filter(Boolean);
+    return clauses.every((clause) => {
+        const clauseMatch = clause.match(/^([\w.]+)\s*(=|!=|>=|<=|>|<|LIKE)\s*(.+)$/i);
+        if (!clauseMatch) return false;
+        const [, left, op, right] = clauseMatch;
+        const leftVal = getValueByPath(row, left);
+        const rightVal = parseSqlLiteral(right);
+        switch (op.toUpperCase()) {
+            case '=': return String(leftVal) === String(rightVal);
+            case '!=': return String(leftVal) !== String(rightVal);
+            case '>': return Number(leftVal) > Number(rightVal);
+            case '<': return Number(leftVal) < Number(rightVal);
+            case '>=': return Number(leftVal) >= Number(rightVal);
+            case '<=': return Number(leftVal) <= Number(rightVal);
+            case 'LIKE': {
+                const regex = new RegExp(`^${String(rightVal).replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/%/g, '.*')}$`, 'i');
+                return regex.test(String(leftVal ?? ''));
+            }
+            default: return false;
+        }
+    });
+};
+
+const isEmptyValue = (value: any) => value === undefined || value === null || value === '';
+
+const validateFieldType = (field: any, value: any) => {
+    if (isEmptyValue(value)) return null;
+    const actualType = Array.isArray(value) ? 'array' : typeof value;
+    switch (field.type) {
+        case 'string': return typeof value === 'string' ? null : `Field "${field.name}" must be a string, got ${actualType}.`;
+        case 'number': return typeof value === 'number' && !isNaN(value) ? null : `Field "${field.name}" must be a number, got ${actualType}.`;
+        case 'boolean': return typeof value === 'boolean' ? null : `Field "${field.name}" must be a boolean, got ${actualType}.`;
+        case 'date': return typeof value === 'string' && !isNaN(Date.parse(value)) ? null : `Field "${field.name}" must be a valid ISO date string, got ${actualType}.`;
+        case 'object': return typeof value === 'object' && value !== null && !Array.isArray(value) ? null : `Field "${field.name}" must be an object, got ${actualType}.`;
+        case 'array': return Array.isArray(value) ? null : `Field "${field.name}" must be an array, got ${actualType}.`;
+        default: return null;
+    }
+};
+
+const makeStandardSuccess = (data: any, meta: Record<string, any> = {}) => ({
+    success: true,
+    data,
+    error: null,
+    meta: {
+        timestamp: new Date().toISOString(),
+        ...meta,
+    },
+});
+
+const makeStandardError = (code: string, message: string, details?: any, meta: Record<string, any> = {}) => ({
+    success: false,
+    data: null,
+    error: {
+        code,
+        message,
+        details: details ?? null,
+    },
+    meta: {
+        timestamp: new Date().toISOString(),
+        ...meta,
+    },
+});
+
+const executeQueryMethod = (sql: string, collections: any[]) => {
+    const normalized = sql.replace(/;\s*$/, '').trim();
+    const selectMatch = normalized.match(/^SELECT\s+(.+?)\s+FROM\s+([\w-]+)(?:\s+WHERE\s+(.+?))?(?:\s+LIMIT\s+(\d+))?$/i);
+    if (selectMatch) {
+        const [, columnsRaw, tableName, whereRaw, limitRaw] = selectMatch;
+        const collection = collections.find((c: any) => c.name?.toLowerCase() === tableName.toLowerCase());
+        if (!collection) throw new Error(`Table "${tableName}" not found.`);
+        let rows = Array.isArray(collection.items) ? [...collection.items] : [];
+        rows = rows.filter((row: any) => matchesWhereClause(row, whereRaw));
+        if (columnsRaw.trim() !== '*') {
+            const columns = splitSqlCsv(columnsRaw);
+            rows = rows.map((row: any) => {
+                const projected: Record<string, any> = {};
+                columns.forEach((columnExpr) => {
+                    const asMatch = columnExpr.match(/^([\w.]+)\s+AS\s+([\w]+)$/i);
+                    if (asMatch) {
+                        const [, src, alias] = asMatch;
+                        projected[alias] = getValueByPath(row, src);
+                    } else {
+                        projected[columnExpr] = getValueByPath(row, columnExpr);
+                    }
+                });
+                return projected;
+            });
+        }
+        if (limitRaw) rows = rows.slice(0, Number(limitRaw));
+        return rows;
+    }
+    // Simplistic INSERT/UPDATE/DELETE support for demo purposes
+    if (normalized.match(/^INSERT/i) || normalized.match(/^UPDATE/i) || normalized.match(/^DELETE/i)) {
+         throw new Error('Only SELECT queries are supported in custom SQL methods for this demo.');
+    }
+    throw new Error('Unsupported query method. Use SELECT.');
+};
 
 export async function handleRequest(req: NextRequest, { params }: any) {
     const startTime = Date.now();
@@ -30,39 +173,38 @@ export async function handleRequest(req: NextRequest, { params }: any) {
     const reqMethod = req.method.toUpperCase();
     const searchParams = req.nextUrl.searchParams;
 
-    const headers = new Headers();
-    headers.set('Access-Control-Allow-Origin', '*');
-    headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-    headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    const resHeaders = new Headers();
+    resHeaders.set('Access-Control-Allow-Origin', '*');
+    resHeaders.set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+    resHeaders.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
     if (reqMethod === 'OPTIONS') {
-        return new NextResponse(null, { status: 204, headers });
+        return new NextResponse(null, { status: 204, headers: resHeaders });
     }
 
-    let workspace: Endpoint[] = [];
+    let endpoints: Endpoint[] = [];
+    let collections: any[] = [];
+    let customQueries: any[] = [];
     let chaosMode = false;
 
     try {
         const decompressed = LZString.decompressFromEncodedURIComponent(params.config);
         if (!decompressed) throw new Error("Failed to decompress");
-        
         const parsed = JSON.parse(decompressed);
         if (Array.isArray(parsed)) {
-            workspace = parsed;
-        } else if (parsed && Array.isArray(parsed.endpoints)) {
-            workspace = parsed.endpoints;
-            chaosMode = parsed.chaosMode === true;
+            endpoints = parsed;
         } else {
-            throw new Error("Invalid format");
+            endpoints = parsed.endpoints || [];
+            collections = parsed.collections || [];
+            customQueries = parsed.customQueries || [];
+            chaosMode = parsed.chaosMode === true;
         }
     } catch (e) {
-        return NextResponse.json({ error: "Invalid workspace configuration payload" }, { status: 400, headers });
+        return NextResponse.json({ error: "Invalid workspace configuration" }, { status: 400, headers: resHeaders });
     }
 
-    // Pre-parse the request body once for rule evaluation
     let reqBodyStr: string | null = null;
     let reqBodyParsed: any = null;
-    
     if (reqMethod !== 'GET' && reqMethod !== 'OPTIONS') {
         try {
             reqBodyStr = await req.text();
@@ -74,248 +216,166 @@ export async function handleRequest(req: NextRequest, { params }: any) {
     let highestScore = -1;
     let bestMatchParams: Record<string, string> = {};
 
-    // Rules Engine and Path Matcher
-    for (const ep of workspace) {
+    for (const ep of endpoints) {
         if (ep.method !== 'ALL' && ep.method !== reqMethod) continue;
-
         const [configUrlPath, configQueryString] = ep.path.split('?');
         const configSegments = configUrlPath.split('/').filter(Boolean);
         const actualSegments = reqPath.split('/').filter(Boolean);
-        
         if (configSegments.length !== actualSegments.length) continue;
         
         let score = 0;
-        let isExactPath = true;
         let pathMatched = true;
-
-        const currentMatchParams: Record<string, string> = {};
+        const currentParams: Record<string, string> = {};
         for (let i = 0; i < configSegments.length; i++) {
             if (configSegments[i].startsWith(':')) {
-                isExactPath = false;
-                const paramName = configSegments[i].slice(1);
-                currentMatchParams[paramName] = actualSegments[i];
+                currentParams[configSegments[i].slice(1)] = actualSegments[i];
             } else if (configSegments[i] !== actualSegments[i]) {
                 pathMatched = false;
                 break;
             }
         }
-        
         if (!pathMatched) continue;
-        if (isExactPath) score += 100;
-        
-        if (configQueryString) {
-            const configQuery = new URLSearchParams(configQueryString);
-            let queryMatchCount = 0;
-            let queriesMatched = true;
-
-            configQuery.forEach((val, key) => {
-                if (searchParams.get(key) === val) {
-                    queryMatchCount++;
-                } else {
-                    queriesMatched = false;
-                }
-            });
-            
-            if (!queriesMatched) continue; 
-            score += (10 * queryMatchCount);
-        }
-
-        // Evaluate Dynamic Rules
-        let rulesMatched = true;
-        let ruleScore = 0;
+        score += 100;
 
         if (ep.rules && ep.rules.length > 0) {
+            let rulesMatched = true;
             for (const rule of ep.rules) {
-                let actualValue: any = undefined;
-
-                // Skip incomplete rules
                 if (!rule.propertyPath) continue;
-
-                if (rule.target === 'header') {
-                    actualValue = req.headers.get(rule.propertyPath.toLowerCase());
-                } else if (rule.target === 'body') {
-                    if (reqBodyParsed && typeof reqBodyParsed === 'object') {
-                        actualValue = rule.propertyPath.split('.').reduce((obj, key) => obj?.[key], reqBodyParsed);
-                    }
-                }
-
-                if (rule.operator === 'exists') {
-                    if (actualValue === undefined || actualValue === null) rulesMatched = false;
-                } else if (rule.operator === 'missing') {
-                    if (actualValue !== undefined && actualValue !== null) rulesMatched = false;
-                } else if (rule.operator === 'equals') {
-                    if (String(actualValue) !== rule.value) rulesMatched = false;
-                }
-
+                let actual: any;
+                if (rule.target === 'header') actual = req.headers.get(rule.propertyPath.toLowerCase());
+                else if (rule.target === 'body' && reqBodyParsed) actual = getValueByPath(reqBodyParsed, rule.propertyPath);
+                
+                if (rule.operator === 'exists' && (actual === undefined || actual === null)) rulesMatched = false;
+                else if (rule.operator === 'missing' && (actual !== undefined && actual !== null)) rulesMatched = false;
+                else if (rule.operator === 'equals' && String(actual) !== rule.value) rulesMatched = false;
                 if (!rulesMatched) break;
-                ruleScore += 500;
             }
+            if (!rulesMatched) continue;
+            score += 500;
         }
-
-        if (!rulesMatched) continue; // Disqualified
-
-        score += ruleScore;
 
         if (score > highestScore) {
             highestScore = score;
             bestMatch = ep;
-            bestMatchParams = currentMatchParams;
+            bestMatchParams = currentParams;
         }
     }
 
-    const endpoint = bestMatch;
+    if (!bestMatch) {
+        const error = { error: `No mock endpoint configured for ${reqMethod} ${reqPath}` };
+        return NextResponse.json(error, { status: 404, headers: resHeaders });
+    }
 
-    let response: NextResponse | null = null;
-    let returnedBody: any = null;
-    let returnedStatus = 404;
+    const { status = 200, delay = 0, delayMax = 0, errorType = 'none', errorRate = 100, body = {}, headers: customHeaders = [], stateConfig } = bestMatch;
 
-    if (!endpoint) {
-        returnedBody = { error: `No mock endpoint configured for ${reqMethod} ${reqPath} that matches all required parameters and rules.` };
-        response = NextResponse.json(returnedBody, { status: 404, headers });
-    } else {
-        const { status = 200, delay = 0, delayMax = 0, errorType = 'none', errorRate = 100, body = {}, headers: customHeaders = [] } = endpoint;
-        
-        // --- 1. Variable Interpolation (Body & Custom Headers) ---
-        const interpolationMap: Record<string, string> = {};
-        Object.entries(bestMatchParams).forEach(([k, v]) => interpolationMap[`params.${k}`] = v);
-        searchParams.forEach((v, k) => interpolationMap[`query.${k}`] = v);
-
-        const interpolate = (val: string) => {
-            let result = val;
-            Object.entries(interpolationMap).forEach(([k, v]) => {
-                const regex = new RegExp(`\\{\\{${k.replace('.', '\\.')}\\}\\}`, 'g');
-                result = result.replace(regex, v);
-            });
-            return result;
-        };
-
-        // Deeply interpolate body if it's a string or object
-        let interpolatedBody = body;
-        if (typeof body === 'string') {
-            interpolatedBody = interpolate(body);
-        } else if (typeof body === 'object' && body !== null) {
-            const bodyStr = JSON.stringify(body);
-            interpolatedBody = JSON.parse(interpolate(bodyStr));
-        }
-
-        // Apply Custom Headers (with interpolation)
-        customHeaders.forEach(h => {
-            if (h.key && h.value) {
-                headers.set(h.key, interpolate(h.value));
-            }
+    // Interpolation
+    const interpolate = (val: string) => {
+        let result = val;
+        // Params
+        Object.entries(bestMatchParams).forEach(([k, v]) => {
+            result = result.replace(new RegExp(`\\{\\{params\\.${k}\\}\\}`, 'g'), v);
         });
-
-        returnedStatus = status;
-
-        const minDelay = Math.max(0, delay);
-        const maxD = Math.max(minDelay, delayMax);
-        let actualDelay = maxD > minDelay 
-            ? Math.floor(Math.random() * (maxD - minDelay + 1)) + minDelay 
-            : minDelay;
-
-        // Apply Chaos Mode - Overwrite delays entirely to random spikes 0.3s - 3s
-        if (chaosMode) actualDelay = Math.floor(Math.random() * 2700) + 300;
-
-        if (actualDelay > 0) {
-            await new Promise(resolve => setTimeout(resolve, actualDelay));
-        }
-
-        let shouldFail = errorType !== 'none' && (Math.random() * 100) < errorRate;
-        let activeErrorType = errorType;
-        let returnedBodyObj = typeof interpolatedBody === 'object' && interpolatedBody !== null ? JSON.parse(JSON.stringify(interpolatedBody)) : interpolatedBody;
-
-        if (chaosMode) {
-            const chaosRoll = Math.random() * 100;
-            if (chaosRoll < 10) {
-                // 10% 500 Server Error
-                returnedStatus = 500;
-                returnedBodyObj = { error: "CHAOS_MODE_INTERVENTION", message: "Chaos Monkey struck this request." };
-                shouldFail = true;
-                activeErrorType = 'none'; // Avoid other simulated errors
-            } else if (chaosRoll < 20) {
-                // 10% CORS
-                activeErrorType = 'cors';
-                shouldFail = true;
-            } else if (chaosRoll < 30) {
-                // 10% Timeout
-                activeErrorType = 'timeout';
-                shouldFail = true;
-            } else if (chaosRoll < 40) {
-                // 10% Schema break
-                if (typeof returnedBodyObj === 'object' && returnedBodyObj !== null && !Array.isArray(returnedBodyObj)) {
-                    const keys = Object.keys(returnedBodyObj);
-                    if (keys.length > 0) {
-                        const randomKey = keys[Math.floor(Math.random() * keys.length)];
-                        const breakRoll = Math.random();
-                        if (breakRoll < 0.33) delete returnedBodyObj[randomKey];
-                        else if (breakRoll < 0.66) returnedBodyObj[randomKey] = null;
-                        else returnedBodyObj[randomKey] = typeof returnedBodyObj[randomKey] === 'string' ? 9999 : "TYPE_CORRUPTION";
-                    } else activeErrorType = 'malformed';
-                } else if (Array.isArray(returnedBodyObj) && returnedBodyObj.length > 0) {
-                    returnedBodyObj.pop(); // Delete a row
-                } else {
-                    activeErrorType = 'malformed';
-                    shouldFail = true;
-                }
-            }
-        }
-
-        if (shouldFail) {
-            if (activeErrorType === 'cors') {
-                headers.delete('Access-Control-Allow-Origin');
-                headers.delete('Access-Control-Allow-Methods');
-                returnedBody = returnedBodyObj;
-                response = new NextResponse(JSON.stringify(returnedBody), { status: returnedStatus, headers });
-            } else if (activeErrorType === 'malformed') {
-                returnedBody = '{"broken_json": true, "message": "Notice the missing closing brace"';
-                headers.set('Content-Type', 'application/json');
-                response = new NextResponse(returnedBody, { status: returnedStatus, headers });
-            } else if (activeErrorType === 'timeout') {
-                await new Promise(resolve => setTimeout(resolve, 30000));
-                returnedBody = { error: 'Simulated Timeout' };
-                returnedStatus = 504;
-                response = NextResponse.json(returnedBody, { status: returnedStatus, headers });
-            } else if (activeErrorType === 'none') {
-                // For the 500 status chaos intervention
-                returnedBody = returnedBodyObj;
-                headers.set('Content-Type', 'application/json');
-                response = new NextResponse(JSON.stringify(returnedBody), { status: returnedStatus, headers });
-            }
-        } else {
-            returnedBody = returnedBodyObj;
-            headers.set('Content-Type', 'application/json');
-            response = new NextResponse(JSON.stringify(returnedBody), { status: returnedStatus, headers });
-        }
-    }
-
-    // Save Request Telemetry to global Logs cache
-    if (!response) { // Failsafe
-        response = NextResponse.json({ error: "Unknown routing error" }, { status: 500, headers });
-        returnedStatus = 500;
-        returnedBody = { error: "Unknown routing error" };
-    }
-
-    const logEntry = {
-        id: `log-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
-        method: reqMethod,
-        url: req.nextUrl.pathname + req.nextUrl.search,
-        headers: Object.fromEntries(req.headers.entries()),
-        body: reqBodyStr,
-        responseStatus: returnedStatus,
-        responseHeaders: Object.fromEntries(headers.entries()),
-        responseBody: typeof returnedBody === 'string' ? returnedBody : JSON.stringify(returnedBody),
-        timeTakenMs: Date.now() - startTime,
-        timestamp: new Date().toISOString(),
-        matchedEndpointId: endpoint?.id,
-        matchedRules: endpoint?.rules
+        // Query
+        searchParams.forEach((v, k) => {
+            result = result.replace(new RegExp(`\\{\\{query\\.${k}\\}\\}`, 'g'), v);
+        });
+        // Body
+        result = result.replace(/\{\{body(?:\.([^}]+))?\}\}/g, (_, path) => {
+            if (!path) return reqBodyStr || '';
+            const v = getValueByPath(reqBodyParsed, path);
+            return v !== undefined && v !== null ? (typeof v === 'object' ? JSON.stringify(v) : String(v)) : '';
+        });
+        return result;
     };
 
-    if (!(globalThis as any).mockApiWorkspaceLogs) {
-        (globalThis as any).mockApiWorkspaceLogs = [];
+    const processInterpolation = (data: any): any => {
+        if (typeof data === 'string') return interpolate(data);
+        if (typeof data === 'object' && data !== null) {
+            const str = JSON.stringify(data);
+            try { return JSON.parse(interpolate(str)); } catch(e) { return data; }
+        }
+        return data;
+    };
+
+    let responseBody = processInterpolation(body);
+
+    // Custom Headers
+    customHeaders.forEach(h => { if (h.key && h.value) resHeaders.set(h.key, interpolate(h.value)); });
+
+    // Stateful Operations
+    if (stateConfig?.enabled) {
+        const operation = stateConfig.operation;
+        if (operation?.startsWith('custom-')) {
+            const queryId = operation.replace('custom-', '');
+            const query = customQueries.find(q => q.id === queryId);
+            if (query) {
+                try {
+                    const resolvedQuery = interpolate(query.code);
+                    const queryResult = executeQueryMethod(resolvedQuery, collections);
+                    responseBody = makeStandardSuccess(queryResult, { operation, queryId });
+                } catch (e: any) {
+                    responseBody = makeStandardError('QUERY_FAILED', e.message);
+                }
+            }
+        } else if (stateConfig.collectionId) {
+            const collection = collections.find(c => c.id === stateConfig.collectionId);
+            if (collection) {
+                const resourceId = searchParams.get('id');
+                if (operation === 'LIST') responseBody = makeStandardSuccess(collection.items);
+                else if (operation === 'GET') {
+                    const item = collection.items.find((i: any) => String(i.id) === String(resourceId));
+                    responseBody = item ? makeStandardSuccess(item) : makeStandardError('NOT_FOUND', 'Item not found');
+                }
+                // CRUD methods could be fully implemented here similarly to mock/route.ts
+            }
+        }
     }
-    const logs = (globalThis as any).mockApiWorkspaceLogs;
-    logs.unshift(logEntry);
-    if (logs.length > 50) logs.pop(); // Keep last 50 requests
+
+    // Delay
+    const actualDelay = chaosMode ? Math.floor(Math.random() * 2700) + 300 : (delayMax > delay ? Math.floor(Math.random() * (delayMax - delay + 1)) + delay : delay);
+    if (actualDelay > 0) await new Promise(r => setTimeout(r, actualDelay));
+
+    // Chaos Mode / Errors
+    let finalStatus = status;
+    if (chaosMode && Math.random() < 0.1) {
+        finalStatus = 500;
+        responseBody = { error: "CHAOS_MODE", message: "Chaos Monkey intervention" };
+    } else if (errorType !== 'none' && (Math.random() * 100) < errorRate) {
+        finalStatus = parseInt(errorType) || 500;
+        responseBody = { error: "SIMULATED_ERROR", type: errorType };
+    }
+
+    if (!resHeaders.has('Content-Type')) {
+        resHeaders.set('Content-Type', 'application/json; charset=utf-8');
+    }
+    resHeaders.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+    resHeaders.set('Pragma', 'no-cache');
+    resHeaders.set('Date', new Date().toUTCString());
+
+    const bodyToSend = typeof responseBody === 'string' ? responseBody : JSON.stringify(responseBody, null, 2);
+    const response = new NextResponse(bodyToSend, { 
+        status: finalStatus, 
+        headers: resHeaders 
+    });
+
+    // Logging
+    const logEntry = {
+        id: `log-${Date.now()}`,
+        method: reqMethod,
+        url: reqPath + (searchParams.toString() ? '?' + searchParams.toString() : ''),
+        headers: Object.fromEntries(req.headers),
+        body: reqBodyStr,
+        responseStatus: finalStatus,
+        responseHeaders: Object.fromEntries(resHeaders),
+        responseBody: bodyToSend,
+        timeTakenMs: Date.now() - startTime,
+        timestamp: new Date().toISOString(),
+        matchedEndpointId: bestMatch.id
+    };
+
+    if (!(globalThis as any).mockApiWorkspaceLogs) (globalThis as any).mockApiWorkspaceLogs = [];
+    (globalThis as any).mockApiWorkspaceLogs.unshift(logEntry);
+    if ((globalThis as any).mockApiWorkspaceLogs.length > 50) (globalThis as any).mockApiWorkspaceLogs.pop();
 
     return response;
 }
@@ -326,3 +386,4 @@ export const PUT = handleRequest;
 export const PATCH = handleRequest;
 export const DELETE = handleRequest;
 export const OPTIONS = handleRequest;
+
