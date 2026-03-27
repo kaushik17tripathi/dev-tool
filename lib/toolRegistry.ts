@@ -290,6 +290,30 @@ export const tools: Tool[] = [
         keywords: ['json schema', 'json validator', 'schema validation', 'draft-07'],
         icon: 'ClipboardCheck',
     },
+    {
+        slug: 'mock-api',
+        name: 'Mock API',
+        description: 'Create configurable mock API endpoints instantly entirely in your browser.',
+        category: 'Network',
+        keywords: ['mock api', 'mock endpoint', 'api generator', 'fake api', 'test api'],
+        icon: 'Server',
+    },
+    {
+        slug: 'local-server',
+        name: 'Local Server',
+        description: 'A full-featured local mock server with stateful database, SQL queries, and an integrated API client.',
+        category: 'Network',
+        keywords: ['local server', 'mock server', 'api server', 'database', 'sql', 'crud'],
+        icon: 'Database',
+    },
+    {
+        slug: 'api-client',
+        name: 'API Client',
+        description: 'A professional API client with environment variables, auth, scripts, and code generation.',
+        category: 'Network',
+        keywords: ['api client', 'http client', 'rest client', 'postman', 'curl', 'request'],
+        icon: 'Send',
+    },
 ];
 
 export const getToolBySlug = (slug: string) => tools.find((tool) => tool.slug === slug);
