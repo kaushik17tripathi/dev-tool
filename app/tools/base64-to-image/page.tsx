@@ -44,6 +44,7 @@ export default function Base64ToImagePage() {
                     <div className="bg-background-card border border-border rounded-3xl p-8 min-h-[300px] flex items-center justify-center relative group overflow-hidden shadow-sm">
                         {input ? (
                             <div className="relative">
+                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                     src={imageSrc}
                                     alt="Decoded"

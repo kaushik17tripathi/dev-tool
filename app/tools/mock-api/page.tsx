@@ -81,7 +81,7 @@ export default function MockApiPage() {
             name: 'New Directory',
             parentId: parentId || null
         };
-        await syncState([...folders, newFolder], [...folders, newFolder]);
+        await syncState(endpoints, [...folders, newFolder]);
     };
 
     const handleAddEndpoint = async (folderId?: string | null) => {
@@ -201,7 +201,7 @@ export default function MockApiPage() {
                 <EndpointList 
                     endpoints={endpoints}
                     folders={folders}
-                    activeId={activeId => activeEndpoint?.id === activeId ? activeId : null} 
+                    activeId={activeEndpoint?.id || null} 
                     activeEndpoint={activeEndpoint}
                     onSelect={setActiveEndpoint}
                     onDelete={handleDelete}

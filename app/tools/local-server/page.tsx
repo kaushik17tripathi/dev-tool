@@ -556,7 +556,7 @@ export default function MockApiGeneratorPage() {
 
     // Removed Registry Sync Logic
 
-    const getEndpointUrl = (endpoint?: Endpoint) => {
+    const getEndpointUrl = React.useCallback((endpoint?: Endpoint) => {
         const config = {
             folders,
             endpoints,
@@ -575,7 +575,7 @@ export default function MockApiGeneratorPage() {
         if (!endpoint) return base;
         const endpointPath = endpoint.path.startsWith('/') ? endpoint.path : `/${endpoint.path}`;
         return `${base}${endpointPath}`;
-    };
+    }, [folders, endpoints, collections, customQueries, chaosMode]);
 
     // Inspector Polling
     useEffect(() => {
@@ -695,7 +695,7 @@ export default function MockApiGeneratorPage() {
         if (isLoaded && selectedEndpoint) {
             setJsonInput(JSON.stringify(selectedEndpoint.body, null, 2));
         }
-    }, [selectedId, isLoaded]);
+    }, [selectedId, isLoaded, selectedEndpoint]);
 
     const updateEndpoint = (updates: Partial<Endpoint>) => {
         setEndpoints(prev => prev.map(e => e.id === selectedId ? { ...e, ...updates } : e));
@@ -717,7 +717,7 @@ export default function MockApiGeneratorPage() {
         if (jsonError) return;
         const url = getEndpointUrl();
         setMockBaseUrl(url);
-    }, [jsonError, folders, endpoints, collections, chaosMode]);
+    }, [jsonError, folders, endpoints, collections, chaosMode, getEndpointUrl]);
 
     const handleAddEndpoint = (folderId: string | null = null, duplicateContext?: Endpoint) => {
         const newEndpoint: Endpoint = {
@@ -1913,7 +1913,7 @@ print(response.json())`;
                                                             <div className={`rounded-lg border p-3 ${replayResult.status >= 400 || replayResult.status === 0 ? 'border-error/30 bg-error/5' : 'border-success/30 bg-success/5'}`}>
                                                                 <div className="flex items-center justify-between mb-2">
                                                                     <span className={`font-bold font-mono text-sm ${replayResult!.status >= 400 || replayResult!.status === 0 ? 'text-error' : 'text-success'}`}>
-                                                                        {replayResult!.status === 0 ? 'Network Error' : `← ${replayResult!.status}`}
+                                                                        {replayResult!.status === 0 ? 'Network Error' : `&larr; ${replayResult!.status}`}
                                                                     </span>
                                                                     <span className="text-[10px] text-text-muted flex items-center gap-1"><Clock className="w-3 h-3" /> {replayResult!.time}ms</span>
                                                                 </div>
@@ -2123,7 +2123,7 @@ print(response.json())`;
                                             <span className="flex items-center gap-1"><Key className="w-3 h-3" /> Use &#123;&#123;variable_name&#125;&#125; for environment vars</span>
                                             {getActiveTab().url.includes('YOUR_CFG_STRING') && (
                                                 <span className="flex items-center gap-1 text-red-400 font-bold animate-pulse">
-                                                    <AlertTriangle className="w-3 h-3" /> Warning: Replace "YOUR_CFG_STRING" with your actual Workspace Base URL
+                                                    <AlertTriangle className="w-3 h-3" /> Warning: Replace &quot;YOUR_CFG_STRING&quot; with your actual Workspace Base URL
                                                 </span>
                                             )}
                                         </div>
@@ -2464,7 +2464,7 @@ print(response.json())`;
                                                                                         <div className="ml-4">
                                                                                             {Object.entries(obj).map(([k, v]) => (
                                                                                                 <div key={k}>
-                                                                                                    <span className="text-accent">"{k}"</span>: {renderTree(v as any, depth + 1)}
+                                                                                                    <span className="text-accent">&quot;{k}&quot;</span>: {renderTree(v as any, depth + 1)}
                                                                                                 </div>
                                                                                             ))}
                                                                                         </div>
