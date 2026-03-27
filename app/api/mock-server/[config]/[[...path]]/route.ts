@@ -134,6 +134,8 @@ const makeStandardError = (code: string, message: string, details?: any, meta: R
 
 const executeQueryMethod = (sql: string, collections: any[]) => {
     const normalized = sql.replace(/;\s*$/, '').trim();
+
+    // SELECT
     const selectMatch = normalized.match(/^SELECT\s+(.+?)\s+FROM\s+([\w-]+)(?:\s+WHERE\s+(.+?))?(?:\s+LIMIT\s+(\d+))?$/i);
     if (selectMatch) {
         const [, columnsRaw, tableName, whereRaw, limitRaw] = selectMatch;
@@ -160,11 +162,72 @@ const executeQueryMethod = (sql: string, collections: any[]) => {
         if (limitRaw) rows = rows.slice(0, Number(limitRaw));
         return rows;
     }
-    // Simplistic INSERT/UPDATE/DELETE support for demo purposes
-    if (normalized.match(/^INSERT/i) || normalized.match(/^UPDATE/i) || normalized.match(/^DELETE/i)) {
-         throw new Error('Only SELECT queries are supported in custom SQL methods for this demo.');
+
+    // INSERT
+    const insertMatch = normalized.match(/^INSERT\s+INTO\s+([\w-]+)\s*\((.+?)\)\s*VALUES\s*\((.+?)\)$/i);
+    if (insertMatch) {
+        const [, tableName, columnsRaw, valuesRaw] = insertMatch;
+        const collection = collections.find((c: any) => c.name?.toLowerCase() === tableName.toLowerCase());
+        if (!collection) throw new Error(`Table "${tableName}" not found.`);
+        const columns = splitSqlCsv(columnsRaw);
+        const values = splitSqlCsv(valuesRaw).map(parseSqlLiteral);
+        if (columns.length !== values.length) throw new Error('INSERT columns count must match values count.');
+        if (!Array.isArray(collection.items)) collection.items = [];
+
+        // Simple validation
+        const errors: string[] = [];
+        const schemaFieldNames = collection.fields?.map((f: any) => f.name) || [];
+        columns.forEach((col) => {
+            if (col !== 'id' && !schemaFieldNames.includes(col)) errors.push(`Field "${col}" is not defined in the schema.`);
+        });
+
+        if (errors.length > 0) throw new Error(`Validation Failed: ${errors.join(' | ')}`);
+
+        const newItem: Record<string, any> = {};
+        columns.forEach((col, idx) => { newItem[col] = values[idx]; });
+        if (!newItem.id) newItem.id = Date.now();
+        collection.items.push(newItem);
+
+        return { action: 'CREATE', affectedRows: 1, row: newItem };
     }
-    throw new Error('Unsupported query method. Use SELECT.');
+
+    // UPDATE
+    const updateMatch = normalized.match(/^UPDATE\s+([\w-]+)\s+SET\s+(.+?)(?:\s+WHERE\s+(.+))?$/i);
+    if (updateMatch) {
+        const [, tableName, setRaw, whereRaw] = updateMatch;
+        const collection = collections.find((c: any) => c.name?.toLowerCase() === tableName.toLowerCase());
+        if (!collection) throw new Error(`Table "${tableName}" not found.`);
+        const assignments = splitSqlCsv(setRaw).map(expr => {
+            const m = expr.match(/^([\w.]+)\s*=\s*(.+)$/);
+            if (!m) throw new Error(`Invalid SET expression: ${expr}`);
+            return { key: m[1], value: parseSqlLiteral(m[2]) };
+        });
+        if (!Array.isArray(collection.items)) collection.items = [];
+        let affectedRows = 0;
+        collection.items = collection.items.map((item: any) => {
+            if (!matchesWhereClause(item, whereRaw)) return item;
+            affectedRows++;
+            const updated = { ...item };
+            assignments.forEach(({ key, value }) => { updated[key] = value; });
+            return updated;
+        });
+        return { action: 'UPDATE', affectedRows };
+    }
+
+    // DELETE
+    const deleteMatch = normalized.match(/^DELETE\s+FROM\s+([\w-]+)(?:\s+WHERE\s+(.+))?$/i);
+    if (deleteMatch) {
+        const [, tableName, whereRaw] = deleteMatch;
+        const collection = collections.find((c: any) => c.name?.toLowerCase() === tableName.toLowerCase());
+        if (!collection) throw new Error(`Table "${tableName}" not found.`);
+        if (!Array.isArray(collection.items)) collection.items = [];
+        const before = collection.items.length;
+        collection.items = collection.items.filter((item: any) => !matchesWhereClause(item, whereRaw));
+        const affectedRows = before - collection.items.length;
+        return { action: 'DELETE', affectedRows };
+    }
+
+    throw new Error('Unsupported query method. Use SELECT, INSERT, UPDATE, or DELETE.');
 };
 
 export async function handleRequest(req: NextRequest, { params }: any) {
@@ -326,9 +389,12 @@ export async function handleRequest(req: NextRequest, { params }: any) {
                     const item = collection.items.find((i: any) => String(i.id) === String(resourceId));
                     responseBody = item ? makeStandardSuccess(item) : makeStandardError('NOT_FOUND', 'Item not found');
                 }
-                // CRUD methods could be fully implemented here similarly to mock/route.ts
             }
         }
+        
+        // Return updated state in header for persistence synchronization
+        resHeaders.set('X-Mock-State-Update', LZString.compressToEncodedURIComponent(JSON.stringify(collections)));
+        resHeaders.set('Access-Control-Expose-Headers', 'X-Mock-State-Update');
     }
 
     // Delay

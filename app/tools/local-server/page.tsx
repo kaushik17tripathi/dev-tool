@@ -1614,7 +1614,6 @@ print(response.json())`;
                                                     <option value="PUT">PUT</option>
                                                     <option value="PATCH">PATCH</option>
                                                     <option value="DELETE">DELETE</option>
-                                                    <option value="ALL">ALL</option>
                                                 </select>
                                             </div>
                                             <div className="col-span-1 lg:col-span-2">
