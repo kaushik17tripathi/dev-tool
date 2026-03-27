@@ -170,8 +170,8 @@ export default function MockApiPage() {
 
     return (
         <ToolLayout tool={tool}>
-            <div className="bg-background-card border border-border rounded-3xl overflow-hidden flex flex-col md:flex-row h-[800px] shadow-sm">
-                <div className="w-full md:w-72 border-b md:border-b-0 md:border-r border-border shrink-0">
+            <div className="bg-background-card border border-border rounded-3xl overflow-hidden flex flex-col md:flex-row h-auto md:h-[800px] shadow-sm">
+                <div className="w-full md:w-72 h-[350px] md:h-full border-b md:border-b-0 md:border-r border-border shrink-0">
                     <EndpointList 
                         endpoints={endpoints}
                         folders={folders}
@@ -187,7 +187,7 @@ export default function MockApiPage() {
                     />
                 </div>
 
-                <div className="flex-1 overflow-hidden relative bg-background-base/30">
+                <div className="w-full md:flex-1 h-[450px] md:h-full overflow-hidden relative bg-background-base/30">
                     <div className="absolute inset-0 overflow-auto">
                         {activeEndpoint ? (
                             <EndpointEditor 
