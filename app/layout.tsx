@@ -8,6 +8,7 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import FloatingShapes from "@/components/ui/FloatingShapes";
+import { CommandPalette } from "@/components/ui/CommandPalette";
 
 const outfit = Outfit({ subsets: ["latin"], variable: '--font-outfit' });
 const dmSans = DM_Sans({ subsets: ["latin"], variable: '--font-dm-sans' });
@@ -104,6 +105,7 @@ export default function RootLayout({
                     <div className="absolute inset-0 -z-20 h-full w-full bg-grid [mask-image:linear-gradient(to_bottom,white,transparent)]"></div>
                     <FloatingShapes />
                     <Navbar />
+                    <CommandPalette />
                     <main className="flex-grow container mx-auto px-4 py-12 max-w-7xl relative z-0">
                         {children}
                     </main>

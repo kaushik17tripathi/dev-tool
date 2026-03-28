@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { tools } from '@/lib/toolRegistry';
+import { blogPosts } from '@/lib/blogRegistry';
 
 export default function sitemap(): MetadataRoute.Sitemap {
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ||
@@ -12,12 +13,25 @@ export default function sitemap(): MetadataRoute.Sitemap {
         priority: 0.8,
     }));
 
+    const blogRoutes = blogPosts.map((post) => ({
+        url: `${baseUrl}/blog/${post.slug}`,
+        lastModified: new Date(post.publishedAt),
+        changeFrequency: 'monthly' as const,
+        priority: 0.75,
+    }));
+
     return [
         {
             url: baseUrl,
             lastModified: new Date(),
             changeFrequency: 'weekly',
             priority: 1,
+        },
+        {
+            url: `${baseUrl}/blog`,
+            lastModified: new Date(),
+            changeFrequency: 'weekly',
+            priority: 0.85,
         },
         {
             url: `${baseUrl}/about`,
@@ -38,5 +52,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
             priority: 0.65,
         },
         ...toolRoutes,
+        ...blogRoutes,
     ];
 }

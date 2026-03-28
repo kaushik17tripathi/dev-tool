@@ -1,49 +1,59 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import ToolLayout from "@/components/layout/ToolLayout";
 import { getToolBySlug } from "@/lib/toolRegistry";
+import { compressState, decompressState } from "@/lib/shareUtils";
 import { Info, AlertCircle, CheckCircle2, Search } from "lucide-react";
+
+const DEFAULT_PATTERN = "([a-zA-Z0-9._%-]+)@([a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6})";
+const DEFAULT_FLAGS = "g";
+const DEFAULT_INPUT = "Contact us at support@DevWallah.dev or admin@example.com";
 
 export default function RegexTesterPage() {
     const tool = getToolBySlug("regex-tester")!;
-    const [pattern, setPattern] = useState("([a-zA-Z0-9._%-]+)@([a-zA-Z0-9.-]+\\.[a-zA-Z]{2,6})");
-    const [flags, setFlags] = useState("g");
-    const [input, setInput] = useState("Contact us at support@DevWallah.dev or admin@example.com");
+    const [pattern, setPattern] = useState(DEFAULT_PATTERN);
+    const [flags, setFlags] = useState(DEFAULT_FLAGS);
+    const [input, setInput] = useState(DEFAULT_INPUT);
     const [matches, setMatches] = useState<any[]>([]);
     const [error, setError] = useState<string | null>(null);
+    const initialized = useRef(false);
+
+    // Deep-link: read ?s= on first render
+    useEffect(() => {
+        if (initialized.current) return;
+        initialized.current = true;
+        const params = new URLSearchParams(window.location.search);
+        const s = params.get("s");
+        if (s) {
+            try {
+                const raw = decompressState(s);
+                const parsed = JSON.parse(raw);
+                if (parsed.pattern !== undefined) setPattern(parsed.pattern);
+                if (parsed.flags !== undefined) setFlags(parsed.flags);
+                if (parsed.input !== undefined) setInput(parsed.input);
+            } catch { /* fall back to defaults */ }
+        }
+    }, []);
+
+    // Serialize state to share
+    const shareState = JSON.stringify({ pattern, flags, input });
 
     useEffect(() => {
         try {
-            if (!pattern) {
-                setMatches([]);
-                setError(null);
-                return;
-            }
+            if (!pattern) { setMatches([]); setError(null); return; }
             const regex = new RegExp(pattern, flags);
             const results = [];
             let match;
-
-            if (flags.includes('g')) {
+            if (flags.includes("g")) {
                 while ((match = regex.exec(input)) !== null) {
-                    results.push({
-                        text: match[0],
-                        index: match.index,
-                        groups: match.slice(1)
-                    });
+                    results.push({ text: match[0], index: match.index, groups: match.slice(1) });
                     if (match.index === regex.lastIndex) regex.lastIndex++;
                 }
             } else {
                 match = regex.exec(input);
-                if (match) {
-                    results.push({
-                        text: match[0],
-                        index: match.index,
-                        groups: match.slice(1)
-                    });
-                }
+                if (match) results.push({ text: match[0], index: match.index, groups: match.slice(1) });
             }
-
             setMatches(results);
             setError(null);
         } catch (e: any) {
@@ -53,7 +63,7 @@ export default function RegexTesterPage() {
     }, [pattern, flags, input]);
 
     return (
-        <ToolLayout tool={tool} shareValue={input}>
+        <ToolLayout tool={tool} shareValue={shareState}>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Left: Input */}
                 <div className="space-y-6">
