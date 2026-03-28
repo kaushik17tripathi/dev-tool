@@ -207,7 +207,7 @@ export function EndpointList({
     };
 
     return (
-        <div className="flex flex-col h-full bg-background-card border-r border-border w-72 select-none transition-colors duration-300 shadow-2xl shadow-black/5">
+        <div className="flex flex-col h-full bg-background-card border-r border-border w-full md:w-72 select-none transition-colors duration-300 shadow-2xl shadow-black/5">
             <div className="p-5 border-b border-border flex items-center justify-between bg-background-card">
                 <div className="flex items-center gap-3">
                     <Globe size={18} className="text-accent" />

@@ -1437,62 +1437,62 @@ print(response.json())`;
 
     return (
         <ToolLayout tool={tool} shareValue={jsonInput}>
-            <div className="flex justify-end mb-4 gap-2 flex-wrap">
-                {/* ⚙ Advanced dropdown */}
-                <div className="relative">
-                    <button
-                        onClick={() => setShowAdvancedMenu(m => !m)}
-                        className={`py-1.5 px-3 text-xs flex items-center gap-2 rounded-lg border transition-colors ${showAdvancedMenu ? 'bg-background-input border-accent/40 text-accent' : 'btn-secondary text-text-muted'}`}
-                    >
-                        <Settings className="w-3.5 h-3.5" /> Advanced
+            <div className="bg-background-card border border-border rounded-[2.5rem] p-4 md:p-8 shadow-sm space-y-6 mt-6 overflow-hidden">
+                <div className="flex items-center justify-between gap-4 flex-wrap pb-4 border-b border-border/50">
+                    {/* ⚙ Advanced dropdown */}
+                    <div className="relative">
+                        <button
+                            onClick={() => setShowAdvancedMenu(m => !m)}
+                            className={`py-1.5 px-3 text-xs flex items-center gap-2 rounded-lg border transition-colors ${showAdvancedMenu ? 'bg-background-input border-accent/40 text-accent' : 'btn-secondary text-text-muted'}`}
+                        >
+                            <Settings className="w-3.5 h-3.5" /> Advanced
+                        </button>
+                        {showAdvancedMenu && (
+                            <div className="absolute right-0 top-full mt-1 z-50 bg-[#111111] border border-border shadow-2xl shadow-black/80 p-2 min-w-[220px] flex flex-col gap-1 rounded-xl">
+                                <div className="px-3 py-1.5 text-[10px] font-bold text-text-muted uppercase tracking-wider">System</div>
+                                <button
+                                    onClick={() => { setChaosMode(c => !c); setShowAdvancedMenu(false); }}
+                                    className={`w-full text-left py-2 px-3 text-xs rounded-lg transition-colors flex items-center gap-2 ${chaosMode ? 'bg-red-500/10 text-red-400' : 'hover:bg-background-input text-text-muted hover:text-red-400'}`}
+                                >
+                                    <AlertTriangle className="w-3.5 h-3.5" />
+                                    {chaosMode ? '🔥 Chaos Mode ON' : 'Enable Chaos Mode'}
+                                </button>
+
+                                <div className="h-px bg-border my-1" />
+                                <div className="px-3 py-1.5 text-[10px] font-bold text-text-muted uppercase tracking-wider">Snapshot & Restore</div>
+                                
+                                <button onClick={() => { handleExportFull(); setShowAdvancedMenu(false); }} className="w-full text-left py-2 px-3 text-xs rounded-lg hover:bg-background-input text-text-accent font-bold transition-colors flex items-center justify-between">
+                                    <span className="flex items-center gap-2"><Download className="w-3.5 h-3.5" /> Full Tool Snapshot</span>
+                                    <span className="text-[9px] opacity-60">.json</span>
+                                </button>
+                                <button onClick={() => { document.getElementById('import-file')?.click(); setShowAdvancedMenu(false); }} className="w-full text-left py-2 px-3 text-xs rounded-lg hover:bg-background-input text-text-muted hover:text-text transition-colors flex items-center gap-2">
+                                    <Upload className="w-3.5 h-3.5" /> Restore Snapshot
+                                </button>
+
+                                <div className="h-px bg-border my-1" />
+                                <div className="px-3 py-1.5 text-[10px] font-bold text-text-muted uppercase tracking-wider">Danger Zone</div>
+                                <button onClick={handleClearAll} className="w-full text-left py-2 px-3 text-xs rounded-lg hover:bg-red-500/10 text-red-500/60 hover:text-red-500 transition-colors flex items-center gap-2">
+                                    <Trash2 className="w-3.5 h-3.5" /> Clear All Data
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                    <input type="file" id="import-file" className="hidden" accept=".json" onChange={handleImportWorkspace} />
+                    <input type="file" id="import-collections" className="hidden" accept=".json" onChange={handleImportCollections} />
+                    <button onClick={handleShareUI} className="btn-primary py-1.5 px-3 text-xs flex items-center gap-2" title="Share a full backend simulation via one URL">
+                        {showShareFeedback ? <Check className="w-3.5 h-3.5" /> : <Share2 className="w-3.5 h-3.5" />}
+                        {showShareFeedback ? "Link Copied!" : "Share Backend"}
                     </button>
-                    {showAdvancedMenu && (
-                        <div className="absolute right-0 top-full mt-1 z-50 bg-[#111111] border border-border shadow-2xl shadow-black/80 p-2 min-w-[220px] flex flex-col gap-1 rounded-xl">
-                            <div className="px-3 py-1.5 text-[10px] font-bold text-text-muted uppercase tracking-wider">System</div>
-                            <button
-                                onClick={() => { setChaosMode(c => !c); setShowAdvancedMenu(false); }}
-                                className={`w-full text-left py-2 px-3 text-xs rounded-lg transition-colors flex items-center gap-2 ${chaosMode ? 'bg-red-500/10 text-red-400' : 'hover:bg-background-input text-text-muted hover:text-red-400'}`}
-                            >
-                                <AlertTriangle className="w-3.5 h-3.5" />
-                                {chaosMode ? '🔥 Chaos Mode ON' : 'Enable Chaos Mode'}
-                            </button>
-
-                            <div className="h-px bg-border my-1" />
-                            <div className="px-3 py-1.5 text-[10px] font-bold text-text-muted uppercase tracking-wider">Snapshot & Restore</div>
-                            
-                            <button onClick={() => { handleExportFull(); setShowAdvancedMenu(false); }} className="w-full text-left py-2 px-3 text-xs rounded-lg hover:bg-background-input text-text-accent font-bold transition-colors flex items-center justify-between">
-                                <span className="flex items-center gap-2"><Download className="w-3.5 h-3.5" /> Full Tool Snapshot</span>
-                                <span className="text-[9px] opacity-60">.json</span>
-                            </button>
-                            <button onClick={() => { document.getElementById('import-file')?.click(); setShowAdvancedMenu(false); }} className="w-full text-left py-2 px-3 text-xs rounded-lg hover:bg-background-input text-text-muted hover:text-text transition-colors flex items-center gap-2">
-                                <Upload className="w-3.5 h-3.5" /> Restore Snapshot
-                            </button>
-
-                            <div className="h-px bg-border my-1" />
-                            <div className="px-3 py-1.5 text-[10px] font-bold text-text-muted uppercase tracking-wider">Danger Zone</div>
-                            <button onClick={handleClearAll} className="w-full text-left py-2 px-3 text-xs rounded-lg hover:bg-red-500/10 text-red-500/60 hover:text-red-500 transition-colors flex items-center gap-2">
-                                <Trash2 className="w-3.5 h-3.5" /> Clear All Data
-                            </button>
-                        </div>
+                    {chaosMode && (
+                        <span className="text-[10px] font-bold text-red-400 animate-pulse flex items-center gap-1 border border-red-500/30 bg-red-500/10 px-2 py-1 rounded-lg">
+                            <AlertTriangle className="w-3 h-3" /> Chaos On
+                        </span>
                     )}
                 </div>
-                <input type="file" id="import-file" className="hidden" accept=".json" onChange={handleImportWorkspace} />
-                <input type="file" id="import-collections" className="hidden" accept=".json" onChange={handleImportCollections} />
-                <button onClick={handleShareUI} className="btn-primary py-1.5 px-3 text-xs flex items-center gap-2" title="Share a full backend simulation via one URL">
-                    {showShareFeedback ? <Check className="w-3.5 h-3.5" /> : <Share2 className="w-3.5 h-3.5" />}
-                    {showShareFeedback ? "Link Copied!" : "Share Backend"}
-                </button>
-                {chaosMode && (
-                    <span className="text-[10px] font-bold text-red-400 animate-pulse flex items-center gap-1 border border-red-500/30 bg-red-500/10 px-2 py-1 rounded-lg">
-                        <AlertTriangle className="w-3 h-3" /> Chaos On
-                    </span>
-                )}
-            </div>
 
-
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 h-full">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[800px] lg:h-[750px] overflow-hidden">
                 {/* Left Sidebar - Routes List */}
-                <div className="col-span-1 border-r border-border pr-2 flex flex-col gap-2 h-[750px] overflow-y-auto">
+                <div className="col-span-1 border-r border-border pr-2 flex flex-col gap-2 h-full overflow-y-auto">
                     <div 
                         className="flex flex-col gap-3 mb-2 p-1 rounded transition-colors"
                         onDragOver={handleDragOver}
@@ -3280,6 +3280,7 @@ print(response.json())`;
                     </div>
                 </div>
             )}
+            </div>
         </ToolLayout>
     );
 }

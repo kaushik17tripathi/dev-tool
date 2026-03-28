@@ -4,7 +4,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { EndpointList } from './components/EndpointList';
 import { EndpointEditor } from './components/EndpointEditor';
 import { storage, MockEndpoint, Folder } from './lib/storage';
-import { Activity, Download, Upload, Trash2, Cpu } from 'lucide-react';
+import { Activity, Download, Upload, Trash2, Cpu, Globe, Server, Plus } from 'lucide-react';
+import ToolLayout from "@/components/layout/ToolLayout";
+import { getToolBySlug } from "@/lib/toolRegistry";
 
 export default function MockApiPage() {
     const [endpoints, setEndpoints] = useState<MockEndpoint[]>([]);
@@ -13,6 +15,7 @@ export default function MockApiPage() {
     const [isSwRegistered, setIsSwRegistered] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const tool = getToolBySlug("mock-api")!;
 
     useEffect(() => {
         if ('serviceWorker' in navigator) {
@@ -166,70 +169,47 @@ export default function MockApiPage() {
     if (!isLoaded) return null;
 
     return (
-        <div className="flex flex-col h-[calc(100vh-8rem)] bg-background-base text-text-primary font-sans selection:bg-accent/20 transition-colors duration-300">
-            <header className="h-20 border-b border-border flex items-center justify-between px-10 bg-background-card shrink-0 z-40 transition-colors duration-300">
-                <div className="flex items-center gap-6">
-                    <div className="bg-accent p-3 rounded-[1.25rem] shadow-2xl shadow-accent/20 group hover:scale-110 transition-all duration-500 cursor-pointer">
-                        <Cpu size={24} className="text-white group-hover:rotate-180 transition-transform duration-700" />
-                    </div>
-                    <div className="flex flex-col">
-                        <div className="flex items-center gap-2">
-                            <span className="font-black text-xl tracking-tighter text-text-primary uppercase leading-none">MOCKCORE_DIR</span>
-                            <span className="px-1.5 py-0.5 rounded-md bg-accent/10 text-accent text-[8px] font-black uppercase tracking-widest leading-none">NEXUS_V4</span>
-                        </div>
-                        <span className="text-[9px] font-black text-text-muted/40 uppercase tracking-[0.3em] mt-1 ml-0.5">Explicit Structural Architecture</span>
-                    </div>
+        <ToolLayout tool={tool}>
+            <div className="bg-background-card border border-border rounded-3xl overflow-hidden flex flex-col md:flex-row h-auto md:h-[800px] shadow-sm">
+                <div className="w-full md:w-72 h-[350px] md:h-full border-b md:border-b-0 md:border-r border-border shrink-0">
+                    <EndpointList 
+                        endpoints={endpoints}
+                        folders={folders}
+                        activeId={activeEndpoint?.id || null} 
+                        activeEndpoint={activeEndpoint}
+                        onSelect={setActiveEndpoint}
+                        onDelete={handleDelete}
+                        onDeleteFolder={handleDeleteFolder}
+                        onAddFolder={handleAddFolder}
+                        onAddEndpoint={handleAddEndpoint}
+                        onUpdateFolderName={handleUpdateFolderName}
+                        onDrop={handleDrop}
+                    />
                 </div>
-                
-                <div className="flex items-center gap-10">
-                    <div className="hidden lg:flex items-center gap-8 pr-10 border-r border-border">
-                        <button onClick={exportConfig} className="text-[10px] font-black uppercase text-text-muted hover:text-accent transition-all flex items-center gap-2 pt-1"><Download size={14} /> EXPORT_SNAP</button>
-                        <button onClick={() => fileInputRef.current?.click()} className="text-[10px] font-black uppercase text-text-muted hover:text-accent transition-all flex items-center gap-2 pt-1"><Upload size={14} /> IMPORT_SNAP</button>
-                        <input type="file" ref={fileInputRef} className="hidden" onChange={importConfig} accept=".json" />
-                    </div>
-                    <div className="flex items-center gap-6">
-                        <button onClick={clearAll} className="text-text-muted/50 hover:text-error transition-all duration-300"><Trash2 size={20} /></button>
-                        <div className="flex items-center gap-3 px-5 py-2.5 rounded-2xl bg-background-input border border-border/50">
-                            <div className={`w-2 h-2 rounded-full ${isSwRegistered ? 'bg-success shadow-[0_0_12px_rgba(34,197,94,0.5)] animate-pulse' : 'bg-text-muted/30'}`} />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-text-muted">{isSwRegistered ? 'ONLINE' : 'OFFLINE'}</span>
-                        </div>
-                    </div>
-                </div>
-            </header>
 
-            <main className="flex flex-1 overflow-hidden relative">
-                <EndpointList 
-                    endpoints={endpoints}
-                    folders={folders}
-                    activeId={activeEndpoint?.id || null} 
-                    activeEndpoint={activeEndpoint}
-                    onSelect={setActiveEndpoint}
-                    onDelete={handleDelete}
-                    onDeleteFolder={handleDeleteFolder}
-                    onAddFolder={handleAddFolder}
-                    onAddEndpoint={handleAddEndpoint}
-                    onUpdateFolderName={handleUpdateFolderName}
-                    onDrop={handleDrop}
-                />
-
-                <div className="flex-1 overflow-hidden relative">
-                    {activeEndpoint ? (
-                        <EndpointEditor 
-                            endpoint={activeEndpoint} 
-                            onSave={handleSave} 
-                            onUpdate={handleUpdateActive}
-                        />
-                    ) : (
-                        <div className="h-full flex flex-col items-center justify-center text-center p-12 bg-background-base/50">
-                            <div className="w-32 h-32 bg-background-card rounded-[3rem] flex items-center justify-center mb-10 shadow-2xl shadow-accent/5 group border border-border">
-                                <Activity size={56} className="text-text-muted/10 group-hover:text-accent/20 transition-all duration-1000" />
+                <div className="w-full md:flex-1 h-[450px] md:h-full overflow-hidden relative bg-background-base/30">
+                    <div className="absolute inset-0 overflow-auto">
+                        {activeEndpoint ? (
+                            <EndpointEditor 
+                                endpoint={activeEndpoint} 
+                                onSave={handleSave} 
+                                onUpdate={handleUpdateActive}
+                            />
+                        ) : (
+                            <div className="h-full flex flex-col items-center justify-center text-center p-12">
+                                <div className="w-24 h-24 bg-background-card rounded-[2.5rem] flex items-center justify-center mb-8 shadow-2xl shadow-accent/5 group border border-border transition-all hover:scale-105">
+                                    <Activity size={40} className="text-text-muted/20 group-hover:text-accent/30 transition-all duration-700" />
+                                </div>
+                                <h3 className="text-xl font-bold text-text-primary mb-3 tracking-tight uppercase">Mock System Ready</h3>
+                                <p className="text-sm text-text-muted mb-8 max-w-xs mx-auto leading-relaxed italic">Select a terminal node from the explorer or create a new one to begin interception.</p>
+                                <button onClick={() => handleAddEndpoint(null)} className="btn-primary px-10 py-3.5 text-xs font-bold uppercase tracking-widest active:scale-95 transition-all">
+                                    <Plus className="w-4 h-4 inline-block mr-2 -mt-0.5" /> New Terminal Node
+                                </button>
                             </div>
-                            <h3 className="text-2xl font-black text-text-primary mb-4 tracking-tighter uppercase max-w-sm">MOCKCORE_SYSTEM_READY</h3>
-                            <button onClick={() => handleAddEndpoint(null)} className="px-12 py-5 bg-accent text-white rounded-2xl hover:bg-accent-hover transition-all font-black text-[11px] shadow-2xl shadow-accent/20 uppercase tracking-[0.2em] active:scale-95">Open New Terminal Node</button>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
-            </main>
-        </div>
+            </div>
+        </ToolLayout>
     );
 }
