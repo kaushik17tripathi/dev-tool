@@ -24,6 +24,10 @@ export default function Footer() {
     const pathname = usePathname();
     const featured = featuredFooterTools();
 
+    if (pathname === "/tools/sql-visualizer") {
+        return null;
+    }
+
     const isActive = (href: string) => pathname === href;
 
     return (
