@@ -50,29 +50,22 @@ export function executeQuery(db: Database, sql: string): QueryResult[] {
   const start = performance.now();
   const results: QueryResult[] = [];
 
-  const statements = sql
-    .split(";")
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0);
-
-  for (const statement of statements) {
-    const stmtStart = performance.now();
-    const execResults = db.exec(statement);
-    if (execResults.length === 0) {
+  const stmtStart = performance.now();
+  const execResults = db.exec(sql);
+  if (execResults.length === 0) {
+    results.push({
+      columns: [],
+      rows: [],
+      rowsAffected: db.getRowsModified(),
+      durationMs: performance.now() - stmtStart,
+    });
+  } else {
+    for (const result of execResults) {
       results.push({
-        columns: [],
-        rows: [],
-        rowsAffected: db.getRowsModified(),
+        columns: result.columns,
+        rows: result.values,
         durationMs: performance.now() - stmtStart,
       });
-    } else {
-      for (const result of execResults) {
-        results.push({
-          columns: result.columns,
-          rows: result.values,
-          durationMs: performance.now() - stmtStart,
-        });
-      }
     }
   }
 
