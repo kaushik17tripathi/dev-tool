@@ -1,6 +1,6 @@
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { useState, useRef } from "react";
-import { ChevronDown, ExternalLink, Github, Mail, Linkedin, Award, Zap, Code2, Database, TrendingUp, FileText } from "lucide-react";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { useState } from "react";
+import { ChevronDown, ExternalLink, Github, Mail, Linkedin } from "lucide-react";
 
 export default function Portfolio() {
   const [activeProject, setActiveProject] = useState(null);
