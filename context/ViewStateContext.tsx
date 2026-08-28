@@ -118,6 +118,8 @@ export function ViewStateProvider({ children }: { children: ReactNode }) {
     })();
     return () => {
       cancelled = true;
+      dbInstances.current.forEach((db) => db.close());
+      dbInstances.current.clear();
     };
   }, []);
 
