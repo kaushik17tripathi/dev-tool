@@ -49,7 +49,7 @@ export default function PlaygroundView() {
       playground.setSelectedTable(null);
       return;
     }
-    editor.updateTabSql(activeTab.id, `SELECT * FROM ${tableName} LIMIT 100;`);
+    editor.updateTabSql(activeTab.id, `SELECT * FROM "${tableName.replace(/"/g, '""')}" LIMIT 100;`);
     playground.setSelectedTable(tableName);
   };
 
