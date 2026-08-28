@@ -102,7 +102,7 @@ export function WorkspaceProvider({
   }, [db]);
 
   const initDb = useCallback(async (database: Database) => {
-    setDb(database);
+    setDb((prev) => { prev?.close(); return database; });
     setTables(getAllTablesInfo(database));
     setSchemaSql(getTableDDL(database));
     setReady(true);
