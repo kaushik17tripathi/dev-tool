@@ -131,6 +131,14 @@ export const tools: Tool[] = [
         icon: 'Database',
     },
     {
+        slug: 'sql-visualizer',
+        name: 'SQL Visualizer',
+        description: 'A local-first SQL workspace with a playground, query builder, ER diagrams, and schema designer — all in your browser.',
+        category: 'Developer',
+        keywords: ['sql visualizer', 'sql playground', 'er diagram', 'schema designer', 'query builder', 'sqlite'],
+        icon: 'Table2',
+    },
+    {
         slug: 'html-encoder-decoder',
         name: 'HTML Encoder/Decoder',
         description: 'Encode and decode HTML entities safely.',
